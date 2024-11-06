@@ -273,25 +273,106 @@
 
                 <div class="row x_title">
                   <div class="col-md-6">
-                    <h3><strong>NFL Stat Comparisons</strong></h3>
+                    <h3>NFL Defensive Matchups <small>By Position</small></h3>
                   </div>
                   <div class="col-md-6">
                     <!--Insert Search Bar Or Top left Element Here-->
                   </div>
                 </div>
                 </div>
+                <h1>NFL Player Stats Search</h1>
+                <form id="playerSearchForm">
+                    <label for="playerName">Enter NFL Player Name:</label>
+                    <input type="text" id="playerName" name="playerName" required>
+                    <button type="submit">Search</button>
+                </form>
 
+                <div id="statsDisplay">
+                    <!-- The stats table will be displayed here -->
+                </div>
+
+                <script src="script.js">
+                    document.getElementById("playerSearchForm").addEventListener("submit", function(event) {
+                        event.preventDefault();
+
+                        const playerName = document.getElementById("playerName").value;
+                        fetchPlayerStats(playerName);
+                    });
+
+                    async function fetchPlayerStats(playerName) {
+                        const apiKey = "a676ec7cfa21b675d090f295a9d3af49";
+                        const apiUrl = `https://api.the-odds-api.com/v4/sports/americanfootball_nfl/players/${playerName}?apiKey=${apiKey}`;
+
+                        try {
+                            const response = await fetch(apiUrl);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            const data = await response.json();
+
+                            if (data && data.length > 0) {
+                                displayStats(data[0]); // Display the stats for the first matched player
+                            } else {
+                                document.getElementById("statsDisplay").innerHTML = "<p>No stats found for this player.</p>";
+                            }
+                        } catch (error) {
+                            console.error("Error fetching player stats:", error);
+                            document.getElementById("statsDisplay").innerHTML = "<p>Could not retrieve player stats. Please try again.</p>";
+                        }
+                    }
+                function displayStats(playerData) {
+                    // Example categories from API: Adjust based on actual API response fields
+                    const statsHtml = `
+                        <h2>Stats for ${playerData.name}</h2>
+                        <table>
+                            <tr>
+                                <th>Category</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Team</td>
+                                <td>${playerData.team || "N/A"}</td>
+                            </tr>
+                            <tr>
+                                <td>Position</td>
+                                <td>${playerData.position || "N/A"}</td>
+                            </tr>
+                            <tr>
+                                <td>Games Played</td>
+                                <td>${playerData.games_played || "N/A"}</td>
+                            </tr>
+                            <tr>
+                                <td>Projected Passing Yards</td>
+                                <td>${playerData.projected_passing_yards || "N/A"}</td>
+                            </tr>
+                            <tr>
+                                <td>Projected Rushing Yards</td>
+                                <td>${playerData.projected_rushing_yards || "N/A"}</td>
+                            </tr>
+                            <tr>
+                                <td>Projected Receiving Yards</td>
+                                <td>${playerData.projected_receiving_yards || "N/A"}</td>
+                            </tr>
+                            <!-- Add other stats as needed -->
+                        </table>
+                    `;
+                    document.getElementById("statsDisplay").innerHTML = statsHtml;
+                }
+
+                </script>
                 <div class="clearfix"></div>
-              </div> 
+              </div>
+            </div>
+
+          </div>
+
+
+            <div class="row" style = "margin-top: 1600px;">
+              <p>StatX Company</p>
             </div>
           </div>
-          <h3 style="margin-top: 20px; text-align: center;"><strong>Explore our options for comparing stats among the NFL.</strong></h3>
-          <div class="standard-btn-container">
-            <a href="defenseStats.html" class="standard-btn" style = "margin-top: 20px;">Defense v.s. Position</a>
-          </div>
-          <div class="standard-btn-container">
-            <a href="playerStats.html" class="standard-btn">Player Statistics</a>
-          </div>
+        </div>
+      </div>
       <!-- /page content -->
 
         
