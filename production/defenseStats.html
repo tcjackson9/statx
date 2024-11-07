@@ -337,10 +337,10 @@
                         <li><a href="#" data-value="RB">Running Back</a></li>
                         <li><a href="#" data-value="WR">Wide Receiver</a></li>
                         <li><a href="#" data-value="TE">Tight End</a></li>
+                        <li><a href="#" data-value="QB">Quarterback</a></li>
 
                         <!-- Different Stats ( In Progress )-->
-                        <!-- 
-                        <li><a href="#" data-value="QB">Quarterback</a></li>
+                        <!--
                         <li><a href="#" data-value="K">Kicker</a></li> 
                         -->
 
@@ -423,6 +423,40 @@
               }
           });
       
+          // Function to update the table headers based on selected position
+          function updateTableHeaders() {
+              const tableHead = document.querySelector('.table thead tr');
+              if (selectedPosition === 'QB') {
+                  tableHead.innerHTML = `
+                      <th>Week</th>
+                      <th>Team</th>
+                      <th>Pass Attempts</th>
+                      <th>Completions</th>
+                      <th>Passing Yards</th>
+                      <th>Passing TDs</th>
+                      <th>Interceptions</th>
+                      <th>Rush Attempts</th>
+                      <th>Rushing Yards</th>
+                      <th>Avg. Yards per Rush</th>
+                      <th>Rushing TDs</th>
+                  `;
+              } else {
+                  tableHead.innerHTML = `
+                      <th>Week</th>
+                      <th>Matchup</th>
+                      <th>Rushing Attempts</th>
+                      <th>Total Rushing Yards</th>
+                      <th>Avg. Yards per Carry</th>
+                      <th>Rushing TDs</th>
+                      <th>Targets</th>
+                      <th>Receptions</th>
+                      <th>Total Receiving Yards</th>
+                      <th>Avg. Yards per Catch</th>
+                      <th>Receiving TDs</th>
+                  `;
+              }
+          }
+      
           // Function to scroll smoothly to the top of the page
           function scrollToTop() {
               const topElement = document.querySelector('.right_col'); // Adjust this selector if needed
@@ -431,62 +465,92 @@
       
           // Show selected team and position when Compare button is clicked
           document.getElementById('compareButton').addEventListener('click', function() {
-          if (selectedTeam && selectedPosition) {
-              const url = `https://www.cbssports.com/fantasy/football/stats/posvsdef/${selectedPosition}/${selectedTeam}/teambreakdown/standard`;
-
-              fetch(url)
-                  .then(response => response.text())
-                  .then(data => {
-                      const parser = new DOMParser();
-                      const doc = parser.parseFromString(data, 'text/html');
-                      const rows = doc.querySelectorAll('.row1, .row2');
-                      const tableBody = document.getElementById('statsTableBody');
-                      tableBody.innerHTML = ''; // Clear any previous data
-
-                      rows.forEach(row => {
-                          const week = row.querySelectorAll('td')[0].textContent.trim();
-                          if (!isNaN(week) && week !== '') {
-                              const matchup = row.querySelectorAll('td')[1].textContent.trim();
-                              const rushAttempts = row.querySelectorAll('td')[2].textContent.trim();
-                              const rushYards = row.querySelectorAll('td')[3].textContent.trim();
-                              const avgRushingYards = row.querySelectorAll('td')[4].textContent.trim();
-                              const rushTouchdowns = row.querySelectorAll('td')[5].textContent.trim();
-                              const targets = row.querySelectorAll('td')[6].textContent.trim();
-                              const receptions = row.querySelectorAll('td')[7].textContent.trim();
-                              const receivingYards = row.querySelectorAll('td')[8].textContent.trim();
-                              const avgReceivingYards = row.querySelectorAll('td')[9].textContent.trim();
-                              const receivingTouchdowns = row.querySelectorAll('td')[10].textContent.trim();
-
-                              // Create a new row and populate it with data
-                              const newRow = document.createElement('tr');
-                              newRow.innerHTML = `
-                                  <td>${week}</td>
-                                  <td>${matchup}</td>
-                                  <td>${rushAttempts}</td>
-                                  <td>${rushYards}</td>
-                                  <td>${avgRushingYards}</td>
-                                  <td>${rushTouchdowns}</td>
-                                  <td>${targets}</td>
-                                  <td>${receptions}</td>
-                                  <td>${receivingYards}</td>
-                                  <td>${avgReceivingYards}</td>
-                                  <td>${receivingTouchdowns}</td>
-                              `;
-
-                              // Append the row to the table body
-                              tableBody.appendChild(newRow);
-                          }
+              if (selectedTeam && selectedPosition) {
+                  const url = `https://www.cbssports.com/fantasy/football/stats/posvsdef/${selectedPosition}/${selectedTeam}/teambreakdown/standard`;
+                  updateTableHeaders(); // Adjust headers based on position
+                  fetch(url)
+                      .then(response => response.text())
+                      .then(data => {
+                          const parser = new DOMParser();
+                          const doc = parser.parseFromString(data, 'text/html');
+                          const rows = doc.querySelectorAll('.row1, .row2, .average-row'); // Added ".average-row" for Average row
+                          const tableBody = document.getElementById('statsTableBody');
+                          tableBody.innerHTML = ''; // Clear previous data
+      
+                          rows.forEach(row => {
+                              const cells = row.querySelectorAll('td');
+                              const firstCellContent = cells[0].textContent.trim();
+      
+                              // Identify QB-specific or general stats layout
+                              if (selectedPosition === 'QB') {
+                                  // Parsing QB stats without "Rating" column
+                                  const newRow = document.createElement('tr');
+                                  newRow.innerHTML = `
+                                      <td>${cells[0].textContent.trim()}</td>
+                                      <td>${cells[1].textContent.trim()}</td>
+                                      <td>${cells[2].textContent.trim()}</td>
+                                      <td>${cells[3].textContent.trim()}</td>
+                                      <td>${cells[4].textContent.trim()}</td>
+                                      <td>${cells[5].textContent.trim()}</td>
+                                      <td>${cells[6].textContent.trim()}</td>
+                                      <td>${cells[8].textContent.trim()}</td>
+                                      <td>${cells[9].textContent.trim()}</td>
+                                      <td>${cells[10].textContent.trim()}</td>
+                                      <td>${cells[11].textContent.trim()}</td>
+                                  `;
+                                  tableBody.appendChild(newRow);
+                              } else if (firstCellContent === 'Average' || (!isNaN(firstCellContent) && firstCellContent !== '')) {
+                                  if (selectedPosition === 'QB') {
+                                      // Parsing QB stats
+                                      const newRow = document.createElement('tr');
+                                      newRow.innerHTML = `
+                                      <td>${firstCellContent}</td>
+                                      <td>${cells[1].textContent.trim()}</td>
+                                      <td>${cells[2].textContent.trim()}</td>
+                                      <td>${cells[3].textContent.trim()}</td>
+                                      <td>${cells[4].textContent.trim()}</td>
+                                      <td>${cells[5].textContent.trim()}</td>
+                                      <td>${cells[6].textContent.trim()}</td>
+                                      <td>${cells[8].textContent.trim()}</td>
+                                      <td>${cells[9].textContent.trim()}</td>
+                                      <td>${cells[10].textContent.trim()}</td>
+                                      <td>${cells[11].textContent.trim()}</td>
+                                  `;
+                                  tableBody.appendChild(newRow);
+                                  }
+                                  else{
+                                        // Parsing RB, TE, WR stats
+                                        const newRow = document.createElement('tr');
+                                        newRow.innerHTML = `
+                                            <td>${firstCellContent}</td>
+                                            <td>${cells[1].textContent.trim()}</td>
+                                            <td>${cells[2].textContent.trim()}</td>
+                                            <td>${cells[3].textContent.trim()}</td>
+                                            <td>${cells[4].textContent.trim()}</td>
+                                            <td>${cells[5].textContent.trim()}</td>
+                                            <td>${cells[6].textContent.trim()}</td>
+                                            <td>${cells[7].textContent.trim()}</td>
+                                            <td>${cells[8].textContent.trim()}</td>
+                                            <td>${cells[9].textContent.trim()}</td>
+                                            <td>${cells[10].textContent.trim()}</td>
+                                        `;
+                                        tableBody.appendChild(newRow);
+                                  }
+                              }
+                          });
+                      })
+                      .catch(error => {
+                          console.error('Error scraping the data:', error);
+                          document.getElementById('statsTableBody').innerHTML = '<tr><td colspan="11">Error fetching data. Please try again later.</td></tr>';
                       });
-                  })
-                  .catch(error => {
-                      console.error('Error scraping the data:', error);
-                      document.getElementById('statsTableBody').innerHTML = '<tr><td colspan="11">Error fetching data. Please try again later.</td></tr>';
-                  });
-          } else {
-              alert('Please select both a team and a position.');
-          }
-      });
+              } else {
+                  alert('Please select both a team and a position.');
+              }
+          });
       </script>
+      
+      
+      
       
 
 
