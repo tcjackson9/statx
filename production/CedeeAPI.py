@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 import requests
 from bs4 import BeautifulSoup
 from flask_cors import CORS
-
+#UPDATED
 app = Flask(__name__)
 CORS(app)
 

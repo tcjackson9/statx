@@ -286,113 +286,106 @@
             </div> 
           </div>
           <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NFL Player Stats Search</title>
-    <link href="../vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        // Set up event listener for the search form
-        document.getElementById("playerSearchForm").addEventListener("submit", function(event) {
-          event.preventDefault();  // Prevent form submission
-          const playerName = document.getElementById("playerName").value;
-          fetchPlayerStats(playerName);
-        });
-    
-        async function fetchPlayerStats() {
-          const playerName = document.getElementById('playerName').value;
-          const url = `http://127.0.0.1:5000/api/player/${playerName}`;
-    
-          try {
-            const response = await fetch(url);
-    
-            // Log the status and response to the console for debugging
-            console.log('Response Status:', response.status);
-            console.log('Response:', response);
-    
-            if (!response.ok) {
-              document.getElementById('statsContainer').innerHTML = 'Player not found';
-              return;
-            }
-    
-            const data = await response.json();
-            console.log('API Response:', data);  // Debugging the API response
-    
-            // Display the stats using the response data
-            displayStats(data.stats);  // Pass the entire "stats" array to displayStats function
-    
-          } catch (error) {
-            console.error("Error fetching stats:", error);
-            document.getElementById('statsContainer').innerHTML = 'Error fetching data';
-          }
-        }
-    
-        function displayStats(stats) {
-          let statsHtml = '<h2>Player Statistics</h2>';
-          
-          // Initialize columns based on available data
-          const columns = {
-            "Game": false,
-            "Week": false,
-            "Targets": false,
-            "Receptions": false,
-            "Receiving Yards": false,
-            "Touchdowns": false,
-            "Receiving Touchdowns": false,
-            "Rushing Attempts": false,
-            "Rushing Yards": false,
-            "Rushing Touchdowns": false
-          };
-    
-          // Determine which columns have data to be displayed
-          stats.forEach((game) => {
-            if (game.week) columns["Week"] = true;
-            if (game.targets) columns["Targets"] = true;
-            if (game.receptions) columns["Receptions"] = true;
-            if (game.receiving_yards) columns["Receiving Yards"] = true;
-            if (game.touchdowns) columns["Touchdowns"] = true;
-            if (game.receiving_tds) columns["Receiving Touchdowns"] = true;
-            if (game["rushing attempts"]) columns["Rushing Attempts"] = true;
-            if (game.rush_yards) columns["Rushing Yards"] = true;
-            if (game.rushing_tds) columns["Rushing Touchdowns"] = true;
-          });
-    
-          // Start the table
-          statsHtml += '<table class="table table-striped">';
-          
-          // Generate table header dynamically based on the columns that have data
-          statsHtml += '<thead><tr>';
-          for (const column in columns) {
-            if (columns[column]) {
-              statsHtml += `<th>${column}</th>`;
-            }
-          }
-          statsHtml += '</tr></thead><tbody>';
-    
-          // Generate table rows dynamically based on available stats
-          stats.forEach((game, index) => {
-            statsHtml += '<tr>';
-            if (columns["Game"]) statsHtml += `<td>Game ${index + 1}</td>`;
-            if (columns["Week"] && game.week) statsHtml += `<td>${game.week}</td>`;
-            if (columns["Targets"] && game.targets) statsHtml += `<td>${game.targets}</td>`;
-            if (columns["Receptions"] && game.receptions) statsHtml += `<td>${game.receptions}</td>`;
-            if (columns["Receiving Yards"] && game.receiving_yards) statsHtml += `<td>${game.receiving_yards}</td>`;
-            if (columns["Touchdowns"] && game.touchdowns) statsHtml += `<td>${game.touchdowns}</td>`;
-            if (columns["Receiving Touchdowns"] && game.receiving_tds) statsHtml += `<td>${game.receiving_tds}</td>`;
-            if (columns["Rushing Attempts"] && game["rushing attempts"]) statsHtml += `<td>${game["rushing attempts"]}</td>`;
-            if (columns["Rushing Yards"] && game.rush_yards) statsHtml += `<td>${game.rush_yards}</td>`;
-            if (columns["Rushing Touchdowns"] && game.rushing_tds) statsHtml += `<td>${game.rushing_tds}</td>`;
-            statsHtml += '</tr>';
-          });
-    
-          statsHtml += '</tbody></table>';
-          document.getElementById('statsContainer').innerHTML = statsHtml;
-        }
-      });
-    </script>
+            <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Set up event listener for the search form
+                document.getElementById("playerSearchForm").addEventListener("submit", function(event) {
+                event.preventDefault();  // Prevent form submission
+                const playerName = document.getElementById("playerName").value;
+                fetchPlayerStats(playerName);
+                });
+            
+                async function fetchPlayerStats() {
+                const playerName = document.getElementById('playerName').value;
+                const url = `http://127.0.0.1:5000/api/player/${playerName}`;
+            
+                try {
+                    const response = await fetch(url);
+            
+                    // Log the status and response to the console for debugging
+                    console.log('Response Status:', response.status);
+                    console.log('Response:', response);
+            
+                    if (!response.ok) {
+                    document.getElementById('statsContainer').innerHTML = 'Player not found';
+                    return;
+                    }
+            
+                    const data = await response.json();
+                    console.log('API Response:', data);  // Debugging the API response
+            
+                    // Display the stats using the response data
+                    displayStats(data.stats);  // Pass the entire "stats" array to displayStats function
+            
+                } catch (error) {
+                    console.error("Error fetching stats:", error);
+                    document.getElementById('statsContainer').innerHTML = 'Error fetching data';
+                }
+                }
+            
+                function displayStats(stats) {
+                let statsHtml = '<h2>Player Statistics</h2>';
+                
+                // Initialize columns based on available data
+                const columns = {
+                    "Game": false,
+                    "Week": false,
+                    "Targets": false,
+                    "Receptions": false,
+                    "Receiving Yards": false,
+                    "Touchdowns": false,
+                    "Receiving Touchdowns": false,
+                    "Rushing Attempts": false,
+                    "Rushing Yards": false,
+                    "Rushing Touchdowns": false
+                };
+            
+                // Determine which columns have data to be displayed
+                stats.forEach((game) => {
+                    if (game.week) columns["Week"] = true;
+                    if (game.targets) columns["Targets"] = true;
+                    if (game.receptions) columns["Receptions"] = true;
+                    if (game.receiving_yards) columns["Receiving Yards"] = true;
+                    if (game.touchdowns) columns["Touchdowns"] = true;
+                    if (game.receiving_tds) columns["Receiving Touchdowns"] = true;
+                    if (game["rushing attempts"]) columns["Rushing Attempts"] = true;
+                    if (game.rush_yards) columns["Rushing Yards"] = true;
+                    if (game.rushing_tds) columns["Rushing Touchdowns"] = true;
+                });
+            
+                // Start the table
+                statsHtml += '<table class="table table-striped">';
+                
+                // Generate table header dynamically based on the columns that have data
+                statsHtml += '<thead><tr>';
+                for (const column in columns) {
+                    if (columns[column]) {
+                    statsHtml += `<th>${column}</th>`;
+                    }
+                }
+                statsHtml += '</tr></thead><tbody>';
+            
+                // Generate table rows dynamically based on available stats
+                stats.forEach((game, index) => {
+                    statsHtml += '<tr>';
+                    if (columns["Game"]) statsHtml += `<td>Game ${index + 1}</td>`;
+                    if (columns["Week"] && game.week) statsHtml += `<td>${game.week}</td>`;
+                    if (columns["Targets"] && game.targets) statsHtml += `<td>${game.targets}</td>`;
+                    if (columns["Receptions"] && game.receptions) statsHtml += `<td>${game.receptions}</td>`;
+                    if (columns["Receiving Yards"] && game.receiving_yards) statsHtml += `<td>${game.receiving_yards}</td>`;
+                    if (columns["Touchdowns"] && game.touchdowns) statsHtml += `<td>${game.touchdowns}</td>`;
+                    if (columns["Receiving Touchdowns"] && game.receiving_tds) statsHtml += `<td>${game.receiving_tds}</td>`;
+                    if (columns["Rushing Attempts"] && game["rushing attempts"]) statsHtml += `<td>${game["rushing attempts"]}</td>`;
+                    if (columns["Rushing Yards"] && game.rush_yards) statsHtml += `<td>${game.rush_yards}</td>`;
+                    if (columns["Rushing Touchdowns"] && game.rushing_tds) statsHtml += `<td>${game.rushing_tds}</td>`;
+                    statsHtml += '</tr>';
+                });
+            
+                statsHtml += '</tbody></table>';
+                document.getElementById('statsContainer').innerHTML = statsHtml;
+                }
+            });
+            </script>
   </head>
   <body>
     <div class="container">
