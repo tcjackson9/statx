@@ -467,75 +467,53 @@
           document.getElementById('compareButton').addEventListener('click', function() {
               if (selectedTeam && selectedPosition) {
                   const url = `https://www.cbssports.com/fantasy/football/stats/posvsdef/${selectedPosition}/${selectedTeam}/teambreakdown/standard`;
-                  updateTableHeaders(); // Adjust headers based on position
+                  updateTableHeaders();
                   fetch(url)
                       .then(response => response.text())
                       .then(data => {
                           const parser = new DOMParser();
                           const doc = parser.parseFromString(data, 'text/html');
-                          const rows = doc.querySelectorAll('.row1, .row2, .average-row'); // Added ".average-row" for Average row
+                          const rows = doc.querySelectorAll('.row1, .row2, .average-row');
                           const tableBody = document.getElementById('statsTableBody');
-                          tableBody.innerHTML = ''; // Clear previous data
-      
+                          tableBody.innerHTML = '';
+
+                          let lastMatchupRow = null;
+
                           rows.forEach(row => {
                               const cells = row.querySelectorAll('td');
                               const firstCellContent = cells[0].textContent.trim();
-      
-                              // Identify QB-specific or general stats layout
-                              if (selectedPosition === 'QB') {
-                                  // Parsing QB stats without "Rating" column
-                                  const newRow = document.createElement('tr');
-                                  newRow.innerHTML = `
-                                      <td>${cells[0].textContent.trim()}</td>
-                                      <td>${cells[1].textContent.trim()}</td>
-                                      <td>${cells[2].textContent.trim()}</td>
-                                      <td>${cells[3].textContent.trim()}</td>
-                                      <td>${cells[4].textContent.trim()}</td>
-                                      <td>${cells[5].textContent.trim()}</td>
-                                      <td>${cells[6].textContent.trim()}</td>
-                                      <td>${cells[8].textContent.trim()}</td>
-                                      <td>${cells[9].textContent.trim()}</td>
-                                      <td>${cells[10].textContent.trim()}</td>
-                                      <td>${cells[11].textContent.trim()}</td>
-                                  `;
-                                  tableBody.appendChild(newRow);
-                              } else if (firstCellContent === 'Average' || (!isNaN(firstCellContent) && firstCellContent !== '')) {
-                                  if (selectedPosition === 'QB') {
-                                      // Parsing QB stats
-                                      const newRow = document.createElement('tr');
-                                      newRow.innerHTML = `
-                                      <td>${firstCellContent}</td>
-                                      <td>${cells[1].textContent.trim()}</td>
-                                      <td>${cells[2].textContent.trim()}</td>
-                                      <td>${cells[3].textContent.trim()}</td>
-                                      <td>${cells[4].textContent.trim()}</td>
-                                      <td>${cells[5].textContent.trim()}</td>
-                                      <td>${cells[6].textContent.trim()}</td>
-                                      <td>${cells[8].textContent.trim()}</td>
-                                      <td>${cells[9].textContent.trim()}</td>
-                                      <td>${cells[10].textContent.trim()}</td>
-                                      <td>${cells[11].textContent.trim()}</td>
-                                  `;
-                                  tableBody.appendChild(newRow);
-                                  }
-                                  else{
-                                        // Parsing RB, TE, WR stats
-                                        const newRow = document.createElement('tr');
-                                        newRow.innerHTML = `
-                                            <td>${firstCellContent}</td>
-                                            <td>${cells[1].textContent.trim()}</td>
-                                            <td>${cells[2].textContent.trim()}</td>
-                                            <td>${cells[3].textContent.trim()}</td>
-                                            <td>${cells[4].textContent.trim()}</td>
-                                            <td>${cells[5].textContent.trim()}</td>
-                                            <td>${cells[6].textContent.trim()}</td>
-                                            <td>${cells[7].textContent.trim()}</td>
-                                            <td>${cells[8].textContent.trim()}</td>
-                                            <td>${cells[9].textContent.trim()}</td>
-                                            <td>${cells[10].textContent.trim()}</td>
-                                        `;
-                                        tableBody.appendChild(newRow);
-                                  }
+                              const matchupCellContent = cells[1]?.textContent.trim() || '';
+
+                              const newRow = document.createElement('tr');
+                              newRow.style.display = firstCellContent ? 'table-row' : 'none';
+                              newRow.innerHTML = `
+                                  <td>${firstCellContent || ''}</td>
+                                  <td>${matchupCellContent || ''}</td>
+                                  <td>${cells[2]?.textContent.trim() || ''}</td>
+                                  <td>${cells[3]?.textContent.trim() || ''}</td>
+                                  <td>${cells[4]?.textContent.trim() || ''}</td>
+                                  <td>${cells[5]?.textContent.trim() || ''}</td>
+                                  <td>${cells[6]?.textContent.trim() || ''}</td>
+                                  <td>${cells[7]?.textContent.trim() || ''}</td>
+                                  <td>${cells[8]?.textContent.trim() || ''}</td>
+                                  <td>${cells[9]?.textContent.trim() || ''}</td>
+                                  <td>${cells[10]?.textContent.trim() || ''}</td>
+                              `;
+                              
+                              tableBody.appendChild(newRow);
+
+                              // Check if the row is a matchup row with "[+]" and add a click event
+                              if (firstCellContent && matchupCellContent.includes("[+]")) {
+                                  newRow.classList.add('matchup-row');
+                                  lastMatchupRow = newRow;
+                                  newRow.addEventListener('click', function() {
+                                      let nextRow = newRow.nextElementSibling;
+                                      // Toggle visibility of subsequent empty first cell rows
+                                      while (nextRow && !nextRow.firstElementChild.textContent.trim()) {
+                                          nextRow.style.display = (nextRow.style.display === 'none') ? 'table-row' : 'none';
+                                          nextRow = nextRow.nextElementSibling;
+                                      }
+                                  });
                               }
                           });
                       })
