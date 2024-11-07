@@ -8,25 +8,39 @@ CORS(app)
 
 @app.route('/api/player/<player_name>', methods = ['GET'])
 def get_player_stats(player_name):
+    # Split the full name into first and last names
     names = player_name.split()
     if len(names) < 2:
         return {"error": "Invalid player name"}
     first_name = names[0]
     last_name = names[1]
-    last_name_initial = last_name[0].upper()
-    last_name_first_four = last_name[:4]
-    first_name_first_two = first_name[:2]
+    
     # Construct the URL dynamically for the player page
-    url = f'https://www.pro-football-reference.com/players/{last_name_initial}/{last_name_first_four}{first_name_first_two}00.htm'
+    last_name_initial = last_name[0].upper()
+    last_name_first_four = last_name[:4]  # First four letters of last name
+    first_name_first_two = first_name[:2]  # First two letters of first name
+
+    url = f'https://www.pro-football-reference.com/players/{last_name_initial}/{last_name_first_four}{first_name_first_two}00/gamelog/2024/'
     response = requests.get(url)
 
+    # Check if the request was successful
     if response.status_code != 200:
         return jsonify({"error": "Player not found or website unreachable"}), 404
 
     # Parse the page content with BeautifulSoup
     soup = BeautifulSoup(response.text, 'html.parser')
+    position = None
+    for p_tag in soup.find_all('p'):
+        if "Position" in p_tag.text:
+            # Split the text and get the part before "Throws"
+            position_text = p_tag.get_text(strip=True).split("Throws")[0]
+            position = position_text.replace("Position: ", "").strip()  # Remove "Position: " and extra spaces
+            break
 
-    # Find the first table in the page
+    if not position:
+        return jsonify({"error": "Player position not found"}), 404
+
+    # Find the first table in the page (usually the 'receiving' table for NFL players)
     table = soup.find('table')
     if not table:
         return jsonify({"error": "Table not found"}), 404
@@ -34,20 +48,46 @@ def get_player_stats(player_name):
     # Find all rows in the table body
     rows = table.find('tbody').find_all('tr')
     
-    # Extract the 6th column (index 5) from each row and return yards
-    yards_data = []
-    for row in rows:
-        columns = row.find_all('td')
-        if len(columns) >= 6:
-            # Append the yard data from column 6 (index 5)
-            yards_data.append(columns[6].get_text(strip=True))
-    
-    # If no data found in the 6th column, return an error
-    if not yards_data:
-        return jsonify({"error": "No data found in the 6th column"}), 404
+    # Extract relevant columns (receptions, targets, receiving tds, attempts, rush yards, rush tds)
+    stats_data = []
+    print(position, "Hello")
+    if position == "RB":
+        for row in rows:
+            columns = row.find_all('td')
+            if len(columns) >= 14:  # Make sure the row has enough columns
+                # Extract data from specific columns (adjusted to index values)
+                stat = {
+                    "week": columns[2].get_text(strip=True),
+                    "receiving_yards": columns[15].get_text(strip=True),
+                    "receptions": columns[14].get_text(strip=True),  # Column 5 is receptions
+                    "targets": columns[13].get_text(strip=True),  # Column 4 is targets
+                    "receiving_tds": columns[20].get_text(strip=True),  # Column 8 is receiving touchdowns
+                    "rushing attempts": columns[9].get_text(strip=True),  # Column 12 is attempts (rushing attempts)
+                    "rush_yards": columns[10].get_text(strip=True),  # Column 13 is rush yards
+                    "rushing_tds": columns[12].get_text(strip=True)  # Column 14 is rushing touchdowns
+                }
+                stats_data.append(stat)
+        
+    else:
+        for row in rows:
+            columns = row.find_all('td')
+            if len(columns) >= 14:  # Make sure the row has enough columns
+                # Extract data from specific columns (adjusted to index values)
+                stat = {
+                    "week": columns[2].get_text(strip=True),
+                    "receiving_yards": columns[11].get_text(strip=True),
+                    "receptions": columns[10].get_text(strip=True),  # Column 5 is receptions
+                    "targets": columns[9].get_text(strip=True),  # Column 4 is targets
+                    "touchdowns": columns[13].get_text(strip=True),  # Column 8 is receiving touchdowns
+                }
+                stats_data.append(stat)
+        
+    # If no data found, return an error
+    if not stats_data:
+        return jsonify({"error": "No data found in the requested columns"}), 404
 
     # Return the data as a JSON response
-    return jsonify({"yards": yards_data})
+    return jsonify({"stats": stats_data})
 
 
 if __name__ == '__main__':
