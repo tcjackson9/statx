@@ -50,7 +50,6 @@ def get_player_stats(player_name):
     
     # Extract relevant columns (receptions, targets, receiving tds, attempts, rush yards, rush tds)
     stats_data = []
-    print(position, "Hello")
     if position == "RB":
         for row in rows:
             columns = row.find_all('td')
@@ -59,15 +58,33 @@ def get_player_stats(player_name):
                 stat = {
                     "week": columns[2].get_text(strip=True),
                     "receiving_yards": columns[15].get_text(strip=True),
-                    "receptions": columns[14].get_text(strip=True),  # Column 5 is receptions
-                    "targets": columns[13].get_text(strip=True),  # Column 4 is targets
-                    "receiving_tds": columns[20].get_text(strip=True),  # Column 8 is receiving touchdowns
-                    "rushing attempts": columns[9].get_text(strip=True),  # Column 12 is attempts (rushing attempts)
-                    "rush_yards": columns[10].get_text(strip=True),  # Column 13 is rush yards
-                    "rushing_tds": columns[12].get_text(strip=True)  # Column 14 is rushing touchdowns
+                    "receptions": columns[14].get_text(strip=True),
+                    "targets": columns[13].get_text(strip=True),
+                    "receiving_tds": columns[20].get_text(strip=True),
+                    "rushing_attempts": columns[9].get_text(strip=True), 
+                    "rush_yards": columns[10].get_text(strip=True),
+                    "rushing_tds": columns[12].get_text(strip=True)
                 }
                 stats_data.append(stat)
-        
+    elif position == "QB":
+        for row in rows:
+            columns = row.find_all('td')
+            if len(columns) >= 14:  # Make sure the row has enough columns
+                # Extract data from specific columns (adjusted to index values)
+                stat = {
+                    "week": columns[2].get_text(strip=True),
+                    "completions": columns[9].get_text(strip=True),
+                    "attempts": columns[10].get_text(strip=True),
+                    "completion_percentage": columns[11].get_text(strip=True),
+                    "yards": columns[12].get_text(strip=True),
+                    "passing_touchdowns": columns[13].get_text(strip=True),
+                    "interceptions": columns[14].get_text(strip=True),
+                    "quarterback_rating": columns[15].get_text(strip=True),
+                    "rushing attempts": columns[20].get_text(strip=True),
+                    "rush_yards": columns[21].get_text(strip=True),
+                    "rushing_tds": columns[23].get_text(strip=True)
+                }
+                stats_data.append(stat)
     else:
         for row in rows:
             columns = row.find_all('td')
