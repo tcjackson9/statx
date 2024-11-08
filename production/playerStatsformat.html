@@ -324,66 +324,60 @@
                 }
             
                 function displayStats(stats) {
-                    let statsHtml = '<h2>Player Statistics</h2>';
-                    
-                    // Define all potential columns
-                    const allColumns = {
-                        "Game": "Game",
-                        "Week": "week",
-                        "Targets": "targets",
-                        "Receptions": "receptions",
-                        "Receiving Yards": "receiving_yards",
-                        "Touchdowns": "touchdowns",
-                        "Receiving Touchdowns": "receiving_tds",
-                        "Rushing Attempts": "rushing attempts",
-                        "Rushing Yards": "rush_yards",
-                        "Rushing Touchdowns": "rushing_tds",
-                        "Attempts": "attempts",
-                        "Completions": "completions",
-                        "Completion Percentage": "completion_percentage",
-                        "Passing Yards": "yards",
-                        "Passing Touchdowns": "passing_touchdowns",
-                        "Interceptions": "interceptions",
-                        "Quarterback Rating": "quarterback_rating"
-                    };
-            
-                    // Determine which columns have data
-                    const columnsToShow = {};
-                    stats.forEach(game => {
-                        for (const [column, field] of Object.entries(allColumns)) {
-                            if (game[field] !== undefined && game[field] !== null && game[field] !== '') {
-                                columnsToShow[column] = field;
-                            }
-                        }
-                    });
-            
-                    // Start the table
-                    statsHtml += '<table class="table table-striped">';
-                    
-                    // Generate table header dynamically based on the columns that have data
-                    statsHtml += '<thead><tr>';
-                    for (const column in columnsToShow) {
-                        statsHtml += `<th>${column}</th>`;
-                    }
-                    statsHtml += '</tr></thead><tbody>';
-            
-                    // Generate table rows dynamically based on available stats
-                    stats.forEach((game, index) => {
-                        statsHtml += '<tr>';
-                        for (const column in columnsToShow) {
-                            const field = columnsToShow[column];
-                            if (column === "Game") {
-                                statsHtml += `<td>Game ${index + 1}</td>`;
-                            } else {
-                                statsHtml += `<td>${game[field] ?? ''}</td>`;
-                            }
-                        }
-                        statsHtml += '</tr>';
-                    });
-            
-                    statsHtml += '</tbody></table>';
-                    document.getElementById('statsContainer').innerHTML = statsHtml;
-                }
+                  let statsHtml = '<h2>Player Statistics</h2>';
+                  
+                  const allColumns = {
+                      "Game": "Game",
+                      "Week": "week",
+                      "Targets": "targets",
+                      "Receptions": "receptions",
+                      "Receiving Yards": "receiving_yards",
+                      "Receiving Touchdowns": "receiving_tds",  // Specifically for receiving TDs
+                      "Rushing Attempts": "rushing_attempts",
+                      "Rushing Yards": "rush_yards",
+                      "Rushing Touchdowns": "rushing_tds",  // Specifically for rushing TDs
+                      "Attempts": "attempts",
+                      "Completions": "completions",
+                      "Completion Percentage": "completion_percentage",
+                      "Passing Yards": "yards",
+                      "Passing Touchdowns": "passing_touchdowns",
+                      "Interceptions": "interceptions",
+                      "Quarterback Rating": "quarterback_rating"
+                  };
+
+                  const columnsToShow = {};
+                  stats.forEach(game => {
+                      for (const [column, field] of Object.entries(allColumns)) {
+                          if (game[field] !== undefined && game[field] !== null && game[field] !== '') {
+                              columnsToShow[column] = field;
+                          }
+                      }
+                  });
+
+                  statsHtml += '<table class="table table-striped">';
+                  
+                  statsHtml += '<thead><tr>';
+                  for (const column in columnsToShow) {
+                      statsHtml += `<th>${column}</th>`;
+                  }
+                  statsHtml += '</tr></thead><tbody>';
+
+                  stats.forEach((game, index) => {
+                      statsHtml += '<tr>';
+                      for (const column in columnsToShow) {
+                          const field = columnsToShow[column];
+                          if (column === "Game") {
+                              statsHtml += `<td>Game ${index + 1}</td>`;
+                          } else {
+                              statsHtml += `<td>${game[field] ?? ''}</td>`;
+                          }
+                      }
+                      statsHtml += '</tr>';
+                  });
+
+                  statsHtml += '</tbody></table>';
+                  document.getElementById('statsContainer').innerHTML = statsHtml;
+              }
             });
             </script>
   </head>

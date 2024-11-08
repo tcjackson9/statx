@@ -60,7 +60,7 @@ def get_player_stats(player_name):
                     "receiving_yards": columns[15].get_text(strip=True),
                     "receptions": columns[14].get_text(strip=True),
                     "targets": columns[13].get_text(strip=True),
-                    "receiving_tds": columns[20].get_text(strip=True),
+                    "receiving_tds": columns[17].get_text(strip=True),
                     "rushing_attempts": columns[9].get_text(strip=True), 
                     "rush_yards": columns[10].get_text(strip=True),
                     "rushing_tds": columns[12].get_text(strip=True)
@@ -104,7 +104,7 @@ def get_player_stats(player_name):
         return jsonify({"error": "No data found in the requested columns"}), 404
 
     # Return the data as a JSON response
-    return jsonify({"stats": stats_data})
+    return jsonify({"stats": stats_data, "position": position})
 
 
 if __name__ == '__main__':
