@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Stats</title>
+</head>
+<body>
+    <form id="playerSearchForm">
+        <input type="text" id="playerName" placeholder="Enter player name (e.g., john_doe)">
+        <button type="submit">Search</button>
+    </form>
+    <div id="statsContainer">
+        <!-- Player stats will be loaded here -->
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Set up event listener for the search form
+            document.getElementById("playerSearchForm").addEventListener("submit", function(event) {
+                event.preventDefault();  // Prevent form submission
+                const playerName = document.getElementById("playerName").value;
+                fetchPlayerStats(playerName);
+            });
+
+            async function fetchPlayerStats(playerName) {
+                // Use fetch_player_stats.php directly
+                const url = `fetch_player_stats.php?player_name=${encodeURIComponent(playerName)}`;
+
+                try {
+                    const response = await fetch(url);
+
+                    // Log the status and response to the console for debugging
+                    console.log('Response Status:', response.status);
+
+                    if (!response.ok) {
+                        document.getElementById('statsContainer').innerHTML = 'Player not found';
+                        return;
+                    }
+
+                    const data = await response.json();
+                    console.log('API Response:', data);  // Debugging the API response
+
+                    if (data.error) {
+                        document.getElementById('statsContainer').innerHTML = data.error;
+                    } else {
+                        // Display the stats using the response data
+                        displayStats(data.stats);
+                    }
+
+                } catch (error) {
+                    console.error("Error fetching stats:", error);
+                    document.getElementById('statsContainer').innerHTML = 'Error fetching data';
+                }
+            }
+
+            function displayStats(stats) {
+                let statsHtml = '<h2>Player Statistics</h2>';
+                
+                const allColumns = {
+                    "Game": "Game",
+                    "Week": "week",
+                    "Targets": "targets",
+                    "Receptions": "receptions",
+                    "Receiving Yards": "receiving_yards",
+                    "Receiving Touchdowns": "receiving_tds",
+                    "Rushing Attempts": "rushing_attempts",
+                    "Rushing Yards": "rush_yards",
+                    "Rushing Touchdowns": "rushing_tds",
+                    "Attempts": "attempts",
+                    "Completions": "completions",
+                    "Completion Percentage": "completion_percentage",
+                    "Passing Yards": "yards",
+                    "Passing Touchdowns": "passing_touchdowns",
+                    "Interceptions": "interceptions",
+                    "Quarterback Rating": "quarterback_rating"
+                };
+
+                const columnsToShow = {};
+                stats.forEach(game => {
+                    for (const [column, field] of Object.entries(allColumns)) {
+                        if (game[field] !== undefined && game[field] !== null && game[field] !== '') {
+                            columnsToShow[column] = field;
+                        }
+                    }
+                });
+
+                statsHtml += '<table class="table table-striped">';
+                
+                statsHtml += '<thead><tr>';
+                for (const column in columnsToShow) {
+                    statsHtml += `<th>${column}</th>`;
+                }
+                statsHtml += '</tr></thead><tbody>';
+
+                stats.forEach((game, index) => {
+                    statsHtml += '<tr>';
+                    for (const column in columnsToShow) {
+                        const field = columnsToShow[column];
+                        if (column === "Game") {
+                            statsHtml += `<td>Game ${index + 1}</td>`;
+                        } else {
+                            statsHtml += `<td>${game[field] ?? ''}</td>`;
+                        }
+                    }
+                    statsHtml += '</tr>';
+                });
+
+                statsHtml += '</tbody></table>';
+                document.getElementById('statsContainer').innerHTML = statsHtml;
+            }
+        });
+    </script>
+</body>
+</html>

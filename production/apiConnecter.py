@@ -21,10 +21,15 @@ for player_name in player_list:
     api_url = f"http://127.0.0.1:5000/api/player/{player_name}"
     # Fetch the player data from the API
     response = requests.get(api_url)
-    response.raise_for_status()
+    try: 
+        response.raise_for_status()
 
-    player_data = response.json()
-    data = player_data.get("stats", [])
+        player_data = response.json()
+        data = player_data.get("stats", [])
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data for {player_name}: {e}")
+        # Continue with the next player
+        continue
     position = player_data.get("position")
 
     if not data or not position:
