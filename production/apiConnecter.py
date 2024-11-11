@@ -23,11 +23,12 @@ for player_name in player_list:
     try:
         # Fetch the player data from the API
         response = requests.get(api_url)
-        response.raise_for_status()
+    try: 
+            response.raise_for_status()
 
-        player_data = response.json()
-        data = player_data.get("stats", [])
-        position = player_data.get("position")
+    player_data = response.json()
+    data = player_data.get("stats", [])
+    position = player_data.get("position")
 
         # If no stats are available or no position, handle this case by creating an empty table
         if not data or not position:
