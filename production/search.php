@@ -14,7 +14,7 @@ if ($mysqli->connect_error) {
 }
 
 // Get the player's name from the URL query parameters
-$player_name = isset($_GET['player_name']) ? $mysqli->real_escape_string($_GET['player_name']) : '';
+$player_name = isset($_POST['player_name']) ? $mysqli->real_escape_string($_GET['player_name']) : '';
 
 if (!empty($player_name)) {
     // Query to fetch player stats
