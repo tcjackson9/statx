@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection configuration
+// Database connection configuration (hardcoded for testing purposes)
 const dbConfig = {
     host: 'playerstatsdbsql.mysql.database.azure.com',
     user: 'alex',
@@ -25,7 +25,7 @@ app.post('/api/searchPlayer', async (req, res) => {
     }
 
     try {
-        // Create a connection to the MySQL database
+        // Establish a connection to the MySQL database
         const connection = await mysql.createConnection(dbConfig);
 
         // Query to retrieve player stats
@@ -46,8 +46,8 @@ app.post('/api/searchPlayer', async (req, res) => {
             return res.status(404).json({ message: `No stats found for player: ${playerName}` });
         }
     } catch (error) {
-        console.error("Database query error: ", error);
-        return res.status(500).json({ error: "An error occurred while querying the database." });
+        console.error("Database query error: ", error.message);
+        return res.status(500).json({ error: "An error occurred while querying the database.", details: error.message });
     }
 });
 
