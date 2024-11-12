@@ -1,9 +1,9 @@
 <?php
 // Database connection configuration
-$host = 'your-database-host';
-$db = 'your-database-name';
-$user = 'your-database-username';
-$pass = 'your-database-password';
+$host = 'playerstatsdbsql.mysql.database.azure.com';
+$db = 'playerStats';
+$user = 'alex';
+$pass = 'Rendypoo1';
 
 // Establish connection to MySQL database
 $mysqli = new mysqli($host, $user, $pass, $db);
@@ -28,7 +28,7 @@ if (!empty($player_name)) {
         // Return the stats as a JSON object
         echo json_encode(["stats" => $player_stats]);
     } else {
-        echo json_encode(["error" => "Player not found"]);
+        echo json_encode(["error" => "Can't find that guy!"]);
     }
 } else {
     echo json_encode(["error" => "No player name provided"]);
