@@ -28,7 +28,7 @@ if (!empty($player_name)) {
         // Return the stats as a JSON object
         echo json_encode(["stats" => $player_stats]);
     } else {
-        echo json_encode(["error" => "Can't find that guy!"]);
+        echo json_encode(["error" => "Player not found"]);
     }
 } else {
     echo json_encode(["error" => "No player name provided"]);
