@@ -46,164 +46,6 @@
 	margin-top: 50px;
   }  
   
-
-
-/* CSS FOR TEAM/POSITION SELECT DROPDOWN */
-
-/* Clearing floats */
-.cf:before,
-.cf:after {
-  content: " ";
-  display: table;
-}
-
-.cf:after {
-  clear: both;
-}
-
-.cf {
-  *zoom: 1;
-}
-
-/* Mini reset, no margins, paddings or bullets */
-.menu,
-.submenu {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  z-index: 1000;
-}
-
-/* Main level */
-.menu {
-	margin: 50px auto;
-	width: 800px;
-	width: -moz-fit-content;
-	width: -webkit-fit-content;
-	width: fit-content;
-  }
-
-  .menu > li {
-	background: #34495e;
-	float: left;
-	position: relative;
-	transform: skewX(25deg);
-	/* Adjust padding if needed */
-	padding: 0; /* Removes any padding causing extra height */
-  }
-
-.menu a {
-  display: block;
-  color: #fff;
-  text-transform: uppercase;
-  text-decoration: none;
-  font-family: Arial, Helvetica;
-  font-size: 14px;
-  font-weight: bold; /* Optional: make the text bold */
-}
-
-.menu li:hover {
-  background: #e74c3c;
-}
-
-.menu > li > a {
-	transform: skewX(-25deg);
-	padding: 1em 2em;
-  }
-
-/* Dropdown */
-/* Dropdown */
-.submenu {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 5px;
-	width: 250px;
-	left: 50%;
-	margin-left: -130px;
-	transform: skewX(-25deg);
-	transform-origin: left top;
-	
-	/* Ensures submenu doesn't affect main menu height */
-	position: absolute;
-	top: 100%;
-	padding: 0; /* Remove any excess padding if necessary */
-  }
-  
-  .submenu > li {
-	background-color: #34495e;
-	position: relative;
-	overflow: hidden;
-	width: 100%; /* Each item spans full width of column */
-  }
-
-.submenu > li > a {
-	text-align: center;
-	font-size: 12px;
- 	 padding: .5em 1em;
-}
-
-.submenu > li::after {
-  content: "";
-  position: absolute;
-  top: -125%;
-  height: 100%;
-  width: 100%;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
-}
-
-/* Odd stuff */
-.submenu > li:nth-child(odd) {
-  transform: skewX(-25deg) translateX(0);
-}
-
-.submenu > li:nth-child(odd) > a {
-  transform: skewX(25deg);
-}
-
-.submenu > li:nth-child(odd)::after {
-  right: -50%;
-  transform: skewX(-25deg) rotate(3deg);
-}
-
-/* Even stuff */
-.submenu > li:nth-child(even) {
-  transform: skewX(25deg) translateX(0);
-}
-
-.submenu > li:nth-child(even) > a {
-  transform: skewX(-25deg);
-}
-
-.submenu > li:nth-child(even)::after {
-  left: -50%;
-  transform: skewX(25deg) rotate(3deg);
-}
-
-/* Show dropdown */
-.submenu,
-.submenu li {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.submenu li {
-  transition: 0.2s ease transform;
-}
-
-.menu > li:hover .submenu,
-.menu > li:hover .submenu li {
-  opacity: 1;
-  visibility: visible;
-}
-
-.menu > li:hover .submenu li:nth-child(even) {
-  transform: skewX(25deg) translateX(15px);
-}
-
-.menu > li:hover .submenu li:nth-child(odd) {
-  transform: skewX(-25deg) translateX(-15px);
-}
-
 /* Button Styling */
 .standard-btn {
 	background: #34495e; /* Matches the menu background */
@@ -362,4 +204,239 @@ tr:nth-child(even) {
 
 tr:hover {
   background-color: #ddd;
+}
+
+.dropdown {
+  position: relative;
+  width: 230px;
+  filter: url(#goo);
+
+  &__face,
+  &__items {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 25px;
+  }
+
+  &__face {
+    display: block;
+    position: relative;
+  }
+
+  &__items {
+    margin: 0;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 100%;
+    list-style: none;
+    list-style-type: none;
+    display: flex;
+    justify-content: space-between;
+    visibility: hidden;
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.93, 0.88, 0.1, 0.8);
+
+    &::before {
+      content: "";
+      background-color: #fff;
+      position: absolute;
+      bottom: 100%;
+      right: 20%;
+      height: 40px;
+      width: 20px;
+    }
+  }
+
+  &__arrow {
+    border-bottom: 2px solid #000;
+    border-right: 2px solid #000;
+    position: absolute;
+    top: 50%;
+    right: 30px;
+    width: 10px;
+    height: 10px;
+    transform: rotate(45deg) translateY(-50%);
+    transform-origin: right;
+  }
+
+  input {
+    display: none;
+
+    &:checked ~ .dropdown__items {
+      top: calc(100% + 25px);
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+}
+
+body {
+  background-image: linear-gradient(140deg, #e2e2e2, #cdcdcd);
+  display: grid;
+  place-items: center;
+  font-family: "Lato", Arial, sans-serif;
+  height: 100vh;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+svg {
+  display: none;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700);
+
+body {
+  font-family: "Open Sans", "Arial";
+  background: #2A3F54;
+}
+h2 {
+  color: #FFF;
+}
+h4 {
+  color: #666;
+}
+p {
+  color: #333;
+  font-size: 13px;
+}
+main {
+  margin: 50px auto;
+  width: 500px;
+}
+section {
+  margin-top: 30px;
+  background: #E3F9F9;
+  padding: 20px;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+}
+
+.dropdown {
+  width: 230px;
+  display: inline-block;
+  margin-right: 10px;
+  position: relative;
+}
+
+.dropdown > a, .dropdown.toggle > label {
+  border-radius: 2px;
+  box-shadow: 0 6px 5px -5px rgba(0,0,0,0.3);
+}
+
+.dropdown > a::after, .dropdown.toggle > label::after {
+  content: "";
+  float: right;
+  margin: 15px 15px 0 0;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid #CCC;
+}
+
+.dropdown ul {
+  list-style-type: none;
+  display: block;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  width: 100%;
+  box-shadow: 0 6px 5px -5px rgba(0,0,0,0.3);
+  overflow: hidden;
+  max-height: 200px; /* Set max height */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.dropdown a, .dropdown.toggle > label {
+  display: block;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  line-height: 40px;
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #999;
+  background-color: #FFF;
+}
+
+.dropdown li {
+  height: 0;
+  overflow: hidden;
+  transition: all 500ms;
+}
+
+.dropdown.hover li {
+  transition-delay: 300ms;
+}
+
+.dropdown li:first-child a {
+  border-radius: 2px 2px 0 0;
+}
+
+.dropdown li:last-child a {
+  border-radius: 0 0 2px 2px;
+}
+
+.dropdown li:first-child a::before {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #FFF;
+  margin: -10px 0 0 30px;
+}
+
+.dropdown a:hover, .dropdown.toggle > label:hover, .dropdown.toggle > input:checked ~ label {
+  background-color: #EEE;
+  color: #666;
+}
+
+.dropdown > a:hover::after, .dropdown.toggle > label:hover::after, .dropdown.toggle > input:checked ~ label::after {
+  border-top-color: #AAA;
+}
+
+.dropdown li:first-child a:hover::before {
+  border-bottom-color: #EEE;
+}
+
+.dropdown.hover:hover li, .dropdown.toggle > input:checked ~ ul li {          
+  height: 40px;
+}
+
+.dropdown.hover:hover li:first-child, .dropdown.toggle > input:checked ~ ul li:first-child {
+  padding-top: 15px;
+}
+
+.dropdown.hover {
+  display: inline-block;
+}
+
+/* Make the table wrapper scrollable on small screens */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Optionally, you can adjust font sizes and padding for smaller screens */
+@media (max-width: 768px) {
+  .table th, .table td {
+      padding: 8px; /* Reduce padding for smaller screens */
+      font-size: 12px; /* Adjust font size for mobile */
+  }
+
+  .x_panel {
+      padding: 10px;
+  }
+
+  .x_title h2 {
+      font-size: 1.2rem; /* Smaller title font on mobile */
+  }
 }
