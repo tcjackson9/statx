@@ -230,7 +230,16 @@
         const isHiddenRow = !row['Week'];
 
         if (isExpandableRow) {
-            // Rows with [+]: Add click functionality to toggle visibility
+            // Replace [+] with ▼ initially
+            const updatedContent = matchupCellContent.replace('[+]', '▼');
+            row['Matchup'] = updatedContent;
+
+            const matchupCell = newRow.querySelector('td:nth-child(2)'); // Assuming Matchup is the 2nd column
+            if (matchupCell) {
+                matchupCell.textContent = updatedContent;
+            }
+
+            // Rows with ▼: Add click functionality to toggle visibility
             newRow.classList.add('matchup-row');
             newRow.style.cursor = 'pointer';
 
@@ -252,12 +261,12 @@
                     nextRow = nextRow.nextElementSibling;
                 }
 
-                // Update the Matchup text to [-] if expanded, [+] if collapsed
-                const matchupCell = newRow.querySelector('td:nth-child(2)'); // Assuming Matchup is the 2nd column
+                // Toggle Matchup text between ▼ and ▲
+                const currentContent = matchupCell.textContent;
                 if (matchupCell) {
                     matchupCell.textContent = isExpanded
-                        ? matchupCell.textContent.replace('[+]', '[-]')
-                        : matchupCell.textContent.replace('[-]', '[+]');
+                        ? currentContent.replace('▼', '▲')
+                        : currentContent.replace('▲', '▼');
                 }
             });
         } else if (isHiddenRow) {
@@ -268,7 +277,6 @@
         tableBody.appendChild(newRow);
     });
 }
-
 
         // Capture team selection and update the text
         document.getElementById('teamList').addEventListener('click', function (event) {

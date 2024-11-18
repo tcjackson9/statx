@@ -491,6 +491,12 @@ section {
   width: 100%;
   overflow-x: auto;
 }
+table td:nth-child(2) {
+  white-space: nowrap; /* Prevents wrapping */
+  overflow: hidden;    /* Ensures content doesn't overflow */
+  text-overflow: ellipsis; /* Adds "..." if content is too long */
+}
+
 
 /* Optionally, you can adjust font sizes and padding for smaller screens */
 @media (max-width: 768px) {
