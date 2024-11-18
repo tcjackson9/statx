@@ -212,41 +212,63 @@
 
         // Update the table rows dynamically based on selected columns and data
         function updateTableRows(rows, selectedColumns) {
-            const tableBody = document.getElementById('statsTableBody');
-            tableBody.innerHTML = '';
+    const tableBody = document.getElementById('statsTableBody');
+    tableBody.innerHTML = ''; // Clear existing rows
 
-            rows.forEach((row, rowIndex) => {
-                const newRow = document.createElement('tr');
+    rows.forEach((row, rowIndex) => {
+        const newRow = document.createElement('tr');
 
-                selectedColumns.forEach((colId) => {
-                    const td = document.createElement('td');
-                    td.textContent = row[colId] || '';
-                    newRow.appendChild(td);
-                });
+        // Populate the row with selected columns
+        selectedColumns.forEach((colId) => {
+            const td = document.createElement('td');
+            td.textContent = row[colId] || '';
+            newRow.appendChild(td);
+        });
 
-                // Check for rows without "Week" but with player names
-                const firstCellContent = row['Week'] || '';
-                const matchupCellContent = row['Matchup'] || '';
+        const matchupCellContent = row['Matchup'] || '';
+        const isExpandableRow = matchupCellContent.includes('[+]');
+        const isHiddenRow = !row['Week'];
 
-                if (!firstCellContent && matchupCellContent.includes('[+]')) {
-                    newRow.classList.add('matchup-row');
-                    newRow.style.cursor = 'pointer';
-                    newRow.addEventListener('click', function () {
-                        let nextRow = newRow.nextElementSibling;
-                        while (nextRow && !nextRow.firstElementChild.textContent.trim()) {
-                            nextRow.style.display =
-                                nextRow.style.display === 'none' ? 'table-row' : 'none';
-                            nextRow = nextRow.nextElementSibling;
-                        }
-                    });
-                } else if (!firstCellContent) {
-                    // Hide rows with empty first cell initially
-                    newRow.style.display = 'none';
+        if (isExpandableRow) {
+            // Rows with [+]: Add click functionality to toggle visibility
+            newRow.classList.add('matchup-row');
+            newRow.style.cursor = 'pointer';
+
+            // Add click event listener to toggle visibility of subsequent rows
+            newRow.addEventListener('click', function () {
+                let nextRow = newRow.nextElementSibling;
+                let isExpanded = false;
+
+                while (nextRow && !nextRow.querySelector('td:first-child').textContent.trim()) {
+                    // Toggle visibility of subsequent rows
+                    nextRow.style.display =
+                        nextRow.style.display === 'none' ? 'table-row' : 'none';
+
+                    // If any row is set to 'table-row', consider it expanded
+                    if (nextRow.style.display === 'table-row') {
+                        isExpanded = true;
+                    }
+
+                    nextRow = nextRow.nextElementSibling;
                 }
 
-                tableBody.appendChild(newRow);
+                // Update the Matchup text to [-] if expanded, [+] if collapsed
+                const matchupCell = newRow.querySelector('td:nth-child(2)'); // Assuming Matchup is the 2nd column
+                if (matchupCell) {
+                    matchupCell.textContent = isExpanded
+                        ? matchupCell.textContent.replace('[+]', '[-]')
+                        : matchupCell.textContent.replace('[-]', '[+]');
+                }
             });
+        } else if (isHiddenRow) {
+            // Hide rows with empty "Week" by default
+            newRow.style.display = 'none';
         }
+
+        tableBody.appendChild(newRow);
+    });
+}
+
 
         // Capture team selection and update the text
         document.getElementById('teamList').addEventListener('click', function (event) {
