@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Stats - Saquon Barkley</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        .error {
+            text-align: center;
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Player Stats - Saquon Barkley</h1>
+    <div id="loading" class="loading">Loading stats...</div>
+    <div id="error" class="error" style="display: none;">Error fetching stats. Please try again later.</div>
+    <table id="statsTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>Week</th>
+                <th>Team</th>
+                <th>Position</th>
+                <th>Rushing Attempts</th>
+                <th>Rushing Yards</th>
+                <th>Rushing TDs</th>
+                <th>Receptions</th>
+                <th>Receiving Yards</th>
+                <th>Receiving TDs</th>
+            </tr>
+        </thead>
+        <tbody id="statsTableBody">
+            <!-- Rows will be dynamically added here -->
+        </tbody>
+    </table>
+    <script>
+        async function fetchPlayerStats(playerName) {
+            const apiEndpoint = `http://3.236.44.92:8000/api/get-player-stats?player_name=${encodeURIComponent(playerName)}`;
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const statsTable = document.getElementById('statsTable');
+            const statsTableBody = document.getElementById('statsTableBody');
+
+            try {
+                // Fetch data from the API
+                const response = await fetch(apiEndpoint);
+                const data = await response.json();
+
+                if (response.status !== 200 || data.error) {
+                    throw new Error(data.error || "Unable to fetch data.");
+                }
+
+                // Clear loading and error messages
+                loadingDiv.style.display = 'none';
+                errorDiv.style.display = 'none';
+
+                // Populate the table with stats
+                statsTableBody.innerHTML = '';
+                data.forEach(stat => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${stat.week}</td>
+                        <td>${stat.team_id}</td>
+                        <td>${stat.position_id}</td>
+                        <td>${stat.rushing_attempts || '-'}</td>
+                        <td>${stat.rushing_yards || '-'}</td>
+                        <td>${stat.rushing_tds || '-'}</td>
+                        <td>${stat.receptions || '-'}</td>
+                        <td>${stat.receiving_yards || '-'}</td>
+                        <td>${stat.receiving_tds || '-'}</td>
+                    `;
+                    statsTableBody.appendChild(row);
+                });
+
+                // Show the table
+                statsTable.style.display = 'table';
+            } catch (error) {
+                // Handle errors
+                loadingDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                console.error("Error fetching player stats:", error);
+            }
+        }
+
+        // Fetch stats for Saquon Barkley when the page loads
+        fetchPlayerStats("Saquon Barkley");
+    </script>
+</body>
+</html>
