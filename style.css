@@ -513,3 +513,9 @@ table td:nth-child(2) {
       font-size: 1.2rem; /* Smaller title font on mobile */
   }
 }
+
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+}
