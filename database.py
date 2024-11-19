@@ -2,9 +2,9 @@ import psycopg2
 
 def connect_db():
     return psycopg2.connect(
-        host="your-database-host",
+        host="aws-0-us-west-1.pooler.supabase.com",
         port=5432,
-        dbname="your-database-name",
-        user="your-database-user",
-        password="your-database-password"
+        dbname="postgres",
+        user="postgres.xrstrludepuahpovxpzb",
+        password="AZ1d3Tab7my1TubG"
     )
