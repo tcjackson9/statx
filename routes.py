@@ -7,7 +7,7 @@ def register_routes(app):
     def home():
         return "Hello, Flask!"
 
-    @app.route("/api/get-player-stats", methods=["GET"])
+    @app.route('/api/get-player-stats', methods=['GET'])
     def get_player_stats():
         player_name = request.args.get("player_name")
         if not player_name:

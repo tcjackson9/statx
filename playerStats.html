@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search NFL player stats including rushing yards, touchdowns, and more.">
     <title>Player Stats Search</title>
     <link href="./style.css" rel="stylesheet">
     <style>
@@ -75,15 +76,29 @@
     <script>
       const form = document.getElementById('playerSearchForm');
       const statsContainer = document.getElementById('statsContainer');
+      const cache = {}; // Simple caching mechanism for repeated queries
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const playerName = document.getElementById('playerName').value.trim();
-        statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
-        
-        try {
-          const response = await fetch("https://api.statsx.online/api/get-player-stats?player_name=${encodeURIComponent(playerName)}");
 
+        if (!playerName) {
+          statsContainer.innerHTML = '<p class="error">Please enter a player name.</p>';
+          return;
+        }
+
+        // Check cache
+        if (cache[playerName]) {
+          statsContainer.innerHTML = cache[playerName];
+          return;
+        }
+
+        statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
+
+        try {
+          const response = await fetch(
+            `https://api.statsx.online/api/get-player-stats?player_name=${encodeURIComponent(playerName)}`
+          );
 
           if (!response.ok) {
             throw new Error('Failed to fetch stats. Please try again.');
@@ -133,6 +148,9 @@
 
           tableHtml += '</tbody></table>';
           statsContainer.innerHTML = tableHtml;
+
+          // Cache the response
+          cache[playerName] = tableHtml;
         } catch (error) {
           statsContainer.innerHTML = `<p class="error">Error fetching stats: ${error.message}</p>`;
         }
