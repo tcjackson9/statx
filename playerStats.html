@@ -82,9 +82,8 @@
         statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
 
         try {
-          const response = await fetch(
-            `http://98.81.70.253:8000/api/get-player-stats?player_name=${encodeURIComponent(playerName)}`
-          );
+          const response = await fetch("https://api.statsx.online/api/get-player-stats?player_name=Saquon%20Barkley");
+
 
           if (!response.ok) {
             throw new Error('Failed to fetch stats. Please try again.');
