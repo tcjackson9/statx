@@ -80,9 +80,9 @@
         event.preventDefault();
         const playerName = document.getElementById('playerName').value.trim();
         statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
-
+        
         try {
-          const response = await fetch("https://api.statsx.online/api/get-player-stats?player_name=Saquon%20Barkley");
+          const response = await fetch("https://api.statsx.online/api/get-player-stats?player_name=${encodeURIComponent(playerName)}");
 
 
           if (!response.ok) {
