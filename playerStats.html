@@ -174,7 +174,21 @@
                   <td>${stat.rushing_tds || '0'}</td>
                 </tr>
               `;
-            } else {
+            } 
+            else if (isWR){
+              tableHtml += `
+                <tr>
+                  <td>${stat.week}</td>
+                  <td>${stat.receptions || '0'}</td>
+                  <td>${stat.receiving_yards || '0'}</td>
+                  <td>${stat.receiving_tds || '0'}</td>
+                  <td>${stat.rushing_attempts || '0'}</td>
+                  <td>${stat.rushing_yards || '0'}</td>
+                  <td>${stat.rushing_tds || '0'}</td>
+                </tr>
+              `;
+            }
+            else {
               tableHtml += `
                 <tr>
                   <td>${stat.week}</td>
