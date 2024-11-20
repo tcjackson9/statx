@@ -117,6 +117,8 @@
             return;
           }
 
+          data.sort((a,b) => a.week - b.week);
+
           // Determine if the player is a QB
           const isQB = data[0]?.position_id === 'QB';
           const isWR = data[0]?.position_id === ('WR' || 'TE')
