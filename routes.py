@@ -17,7 +17,7 @@ def register_routes(app):
             conn = connect_db()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
             
-            query = "SELECT * FROM player_stats WHERE player_name = %s"
+            query = "SELECT * FROM player_stats WHERE player_name = %s ORDER BY week"
             cursor.execute(query, (player_name,))
             stats = cursor.fetchall()
             cursor.close()
