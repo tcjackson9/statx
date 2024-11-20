@@ -285,9 +285,14 @@
   const statsContainer = document.getElementById('statsContainer');
   const cache = {}; // Simple caching mechanism for repeated queries
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const playerName = playerNameInput.value.trim();
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const playerNameUnchecked = document.getElementById('playerName').value.trim();
+        const playerName = playerNameUnchecked
+          .split(' ') // Split the name into an array of words
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize each word
+          .join(' '); // Join the words back into a single string
+
 
     if (!playerName) {
       statsContainer.innerHTML = '<p class="error">Please enter a player name.</p>';
@@ -313,16 +318,21 @@
 
       const data = await response.json();
 
-      if (data.error) {
-        statsContainer.innerHTML = `<p class="error">${data.error}</p>`;
-        return;
-      }
-      data.sort((a,b) => a.week - b.week);
-      const isQB = data[0]?.position_id === 'QB';
-      const isWR = data[0]?.position_id === ('WR' || 'TE')
-      let tableHtml = `<table><thead><tr>`;
-      // Generate the table
-      if (isQB) {
+          if (data.error) {
+            statsContainer.innerHTML = `<p class="error">${data.error}</p>`;
+            return;
+          }
+
+          data.sort((a,b) => a.week - b.week);
+
+          // Determine if the player is a QB
+          const isQB = data[0]?.position_id === 'QB';
+          const isWR = data[0]?.position_id === ('WR' || 'TE')
+
+          // Generate the table
+          let tableHtml = `<table><thead><tr>`;
+
+          if (isQB) {
             // Columns for QB
             tableHtml += `
               <th>Week</th>
@@ -333,8 +343,8 @@
               <th>Interceptions</th>
               <th>Rushing Attempts</th>
               <th>Rushing Yards</th>
-              <th>Rushing TDs</th>`
-            ;
+              <th>Rushing TDs</th>
+            `;
           } 
           else if (isWR) {
             tableHtml += `
@@ -344,8 +354,8 @@
               <th>Receiving TDs</th>
               <th>Rushing Attempts</th>
               <th>Rushing Yards</th>
-              <th>Rushing TDs</th>`
-              
+              <th>Rushing TDs</th>
+              `
           }
           else {
             // Columns for other positions
@@ -361,51 +371,52 @@
           }
           tableHtml += '</tr></thead><tbody>';
 
-data.forEach((stat) => {
-  if (isQB) {
-    tableHtml += `
-      <tr>
-        <td>${stat.week}</td>
-        <td>${stat.passing_attempts || '0'}</td>
-        <td>${stat.completions || '0'}</td>
-        <td>${stat.passing_yards || '0'}</td>
-        <td>${stat.passing_tds || '0'}</td>
-        <td>${stat.interceptions || '0'}</td>
-        <td>${stat.rushing_attempts || '0'}</td>
-        <td>${stat.rushing_yards || '0'}</td>
-        <td>${stat.rushing_tds || '0'}</td>
-      </tr>`
-    ;
-  } 
-  else if (isWR){
-    tableHtml += `
-      <tr>
-        <td>${stat.week}</td>
-        <td>${stat.receptions || '0'}</td>
-        <td>${stat.receiving_yards || '0'}</td>
-        <td>${stat.receiving_tds || '0'}</td>
-        <td>${stat.rushing_attempts || '0'}</td>
-        <td>${stat.rushing_yards || '0'}</td>
-        <td>${stat.rushing_tds || '0'}</td>
-      </tr>`
-    ;
-  }
-  else {
-    tableHtml += `
-      <tr>
-        <td>${stat.week}</td>
-        <td>${stat.rushing_attempts || '0'}</td>
-        <td>${stat.rushing_yards || '0'}</td>
-        <td>${stat.rushing_tds || '0'}</td>
-        <td>${stat.receptions || '0'}</td>
-        <td>${stat.receiving_yards || '0'}</td>
-        <td>${stat.receiving_tds || '0'}</td>
-      </tr>`
-    ;
-  }
-});
-      tableHtml += '</tbody></table>';
-      statsContainer.innerHTML = tableHtml;
+          data.forEach((stat) => {
+            if (isQB) {
+              tableHtml += `
+                <tr>
+                  <td>${stat.week}</td>
+                  <td>${stat.passing_attempts || '0'}</td>
+                  <td>${stat.completions || '0'}</td>
+                  <td>${stat.passing_yards || '0'}</td>
+                  <td>${stat.passing_tds || '0'}</td>
+                  <td>${stat.interceptions || '0'}</td>
+                  <td>${stat.rushing_attempts || '0'}</td>
+                  <td>${stat.rushing_yards || '0'}</td>
+                  <td>${stat.rushing_tds || '0'}</td>
+                </tr>
+              `;
+            } 
+            else if (isWR){
+              tableHtml += `
+                <tr>
+                  <td>${stat.week}</td>
+                  <td>${stat.receptions || '0'}</td>
+                  <td>${stat.receiving_yards || '0'}</td>
+                  <td>${stat.receiving_tds || '0'}</td>
+                  <td>${stat.rushing_attempts || '0'}</td>
+                  <td>${stat.rushing_yards || '0'}</td>
+                  <td>${stat.rushing_tds || '0'}</td>
+                </tr>
+              `;
+            }
+            else {
+              tableHtml += `
+                <tr>
+                  <td>${stat.week}</td>
+                  <td>${stat.rushing_attempts || '0'}</td>
+                  <td>${stat.rushing_yards || '0'}</td>
+                  <td>${stat.rushing_tds || '0'}</td>
+                  <td>${stat.receptions || '0'}</td>
+                  <td>${stat.receiving_yards || '0'}</td>
+                  <td>${stat.receiving_tds || '0'}</td>
+                </tr>
+              `;
+            }
+          });
+
+          tableHtml += '</tbody></table>';
+          statsContainer.innerHTML = tableHtml;
 
       // Cache the response
       cache[playerName] = tableHtml;
