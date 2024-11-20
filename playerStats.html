@@ -18,7 +18,8 @@
         text-align: left;
       }
       th {
-        background-color: #f2f2f2;
+        background-color: #2a3f54; /* Change header row color */
+        color: #ffffff; /* Set text color to white for contrast */
         font-weight: bold;
       }
       tr:nth-child(even) {
@@ -111,39 +112,68 @@
             return;
           }
 
+          // Determine if the player is a QB
+          const isQB = data[0]?.position_id === 'QB';
+
           // Generate the table
-          let tableHtml = `
-            <table>
-              <thead>
-                <tr>
-                  <th>Week</th>
-                  <th>Team</th>
-                  <th>Position</th>
-                  <th>Rushing Attempts</th>
-                  <th>Rushing Yards</th>
-                  <th>Rushing TDs</th>
-                  <th>Receptions</th>
-                  <th>Receiving Yards</th>
-                  <th>Receiving TDs</th>
-                </tr>
-              </thead>
-              <tbody>
-          `;
+          let tableHtml = `<table><thead><tr>`;
+
+          if (isQB) {
+            // Columns for QB
+            tableHtml += `
+              <th>Week</th>
+              <th>Passing Attempts</th>
+              <th>Completions</th>
+              <th>Passing Yards</th>
+              <th>Passing TDs</th>
+              <th>Interceptions</th>
+              <th>Rushing Attempts</th>
+              <th>Rushing Yards</th>
+              <th>Rushing TDs</th>
+            `;
+          } else {
+            // Columns for other positions
+            tableHtml += `
+              <th>Week</th>
+              <th>Rushing Attempts</th>
+              <th>Rushing Yards</th>
+              <th>Rushing TDs</th>
+              <th>Receptions</th>
+              <th>Receiving Yards</th>
+              <th>Receiving TDs</th>
+            `;
+          }
+
+          tableHtml += `</tr></thead><tbody>`;
 
           data.forEach((stat) => {
-            tableHtml += `
-              <tr>
-                <td>${stat.week}</td>
-                <td>${stat.team_id}</td>
-                <td>${stat.position_id}</td>
-                <td>${stat.rushing_attempts || '0'}</td>
-                <td>${stat.rushing_yards || '0'}</td>
-                <td>${stat.rushing_tds || '0'}</td>
-                <td>${stat.receptions || '0'}</td>
-                <td>${stat.receiving_yards || '0'}</td>
-                <td>${stat.receiving_tds || '0'}</td>
-              </tr>
-            `;
+            if (isQB) {
+              tableHtml += `
+                <tr>
+                  <td>${stat.week}</td>
+                  <td>${stat.passing_attempts || '0'}</td>
+                  <td>${stat.completions || '0'}</td>
+                  <td>${stat.passing_yards || '0'}</td>
+                  <td>${stat.passing_tds || '0'}</td>
+                  <td>${stat.interceptions || '0'}</td>
+                  <td>${stat.rushing_attempts || '0'}</td>
+                  <td>${stat.rushing_yards || '0'}</td>
+                  <td>${stat.rushing_tds || '0'}</td>
+                </tr>
+              `;
+            } else {
+              tableHtml += `
+                <tr>
+                  <td>${stat.week}</td>
+                  <td>${stat.rushing_attempts || '0'}</td>
+                  <td>${stat.rushing_yards || '0'}</td>
+                  <td>${stat.rushing_tds || '0'}</td>
+                  <td>${stat.receptions || '0'}</td>
+                  <td>${stat.receiving_yards || '0'}</td>
+                  <td>${stat.receiving_tds || '0'}</td>
+                </tr>
+              `;
+            }
           });
 
           tableHtml += '</tbody></table>';
