@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="utf-8">
     <!-- Custom Theme Style -->
     <link href="./style.css" rel="stylesheet">
   </head>
@@ -117,121 +118,177 @@
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
+    
         const supabaseUrl = 'https://xrstrludepuahpovxpzb.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhyc3RybHVkZXB1YWhwb3Z4cHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1NjA5OTcsImV4cCI6MjA0NzEzNjk5N30.zi3dWGxLif4__7tSOn2-r2nS1wZI_SLBUpHGMpKMznI';
         const supabase = createClient(supabaseUrl, supabaseKey);
-
+    
         let selectedTeam = '';
         let selectedPosition = '';
-
-        const columnsByPosition = {
-            QB: [
-                { name: 'Week', id: 'Week' },
-                { name: 'Matchup', id: 'Matchup' },
-                { name: 'Passing Attempts', id: 'PassingAttempts' },
-                { name: 'Completions', id: 'Completions' },
-                { name: 'Passing Yards', id: 'PassingYards' },
-                { name: 'Passing Touchdowns', id: 'PassingTDs' },
-                { name: 'Interceptions', id: 'Interceptions' },
-                { name: 'Rate', id: 'Rate' },
-                { name: 'Rush Attempts', id: 'RushAttempts' },
-                { name: 'Rush Yards', id: 'RushYards' },
-                { name: 'Avg Rush Yards', id: 'AvgRushYards' },
-                { name: 'Rushing Touchdowns', id: 'RushingTDs' }
-            ],
-            default: [
-                { name: 'Week', id: 'Week' },
-                { name: 'Matchup', id: 'Matchup' },
-                { name: 'Rushing Attempts', id: 'RushingAttempts' },
-                { name: 'Total Rushing Yards', id: 'TotalRushingYards' },
-                { name: 'Avg. Yards per Carry', id: 'AvgYardsPerCarry' },
-                { name: 'Rushing TDs', id: 'RushingTDs' },
-                { name: 'Targets', id: 'Targets' },
-                { name: 'Receptions', id: 'Receptions' },
-                { name: 'Total Receiving Yards', id: 'TotalReceivingYards' },
-                { name: 'Avg. Yards per Catch', id: 'AvgYardsPerCatch' },
-                { name: 'Receiving TDs', id: 'ReceivingTDs' }
-            ]
-        };
-
-        function updateTableRows(rows) {
-          const tableBody = document.getElementById('statsTableBody');
-          tableBody.innerHTML = ''; // Clear existing rows
-
-          rows.forEach((row) => {
-              const newRow = document.createElement('tr');
-              newRow.innerHTML = `
-                  <td>${row.week}</td>
-                  <td>${row.matchup}</td>
-                  <td>${row.rushing_attempts}</td>
-                  <td>${row.total_rushing_yards}</td>
-                  <td>${row.avg_yards_per_carry}</td>
-                  <td>${row.rushing_tds}</td>
-                  <td>${row.targets}</td>
-                  <td>${row.receptions}</td>
-                  <td>${row.total_receiving_yards}</td>
-                  <td>${row.avg_yards_per_catch}</td>
-                  <td>${row.receiving_tds}</td>
-              `;
-              tableBody.appendChild(newRow);
-          });
-      }
-
+    
         async function fetchDefenseData() {
-    try {
-        const { data, error } = await supabase
-            .from('general_defensive_stats')
-            .select(`
-                week,
-                matchup,
-                rushing_attempts,
-                total_rushing_yards,
-                avg_yards_per_carry,
-                rushing_tds,
-                targets,
-                receptions,
-                total_receiving_yards,
-                avg_yards_per_catch,
-                receiving_tds
-            `)
-            .eq('team_id', selectedTeam)
-            .eq('position_id', selectedPosition);
-
-        if (error) {
-            console.error('Supabase Error:', error);
-            alert('Failed to fetch data from Supabase.');
-            return [];
+            try {
+                let data, error;
+    
+                if (selectedPosition === 'QB') {
+                    // Query QB-specific stats
+                    ({ data, error } = await supabase
+                        .from('qb_defensive_stats')
+                        .select(`
+                            team_id,
+                            week,
+                            matchup,
+                            passing_attempts,
+                            completions,
+                            passing_yards,
+                            passing_tds,
+                            interceptions,
+                            rate,
+                            rushing_attempts,
+                            rushing_yards,
+                            avg_rushing_yards,
+                            rushing_tds
+                        `)
+                        .eq('team_id', selectedTeam));
+                } else {
+                    // Query general defensive stats
+                    ({ data, error } = await supabase
+                        .from('general_defensive_stats')
+                        .select(`
+                            week,
+                            matchup,
+                            rushing_attempts,
+                            total_rushing_yards,
+                            avg_yards_per_carry,
+                            rushing_tds,
+                            targets,
+                            receptions,
+                            total_receiving_yards,
+                            avg_yards_per_catch,
+                            receiving_tds
+                        `)
+                        .eq('team_id', selectedTeam)
+                        .eq('position_id', selectedPosition));
+                }
+    
+                if (error) {
+                    console.error('Supabase Error:', error);
+                    alert('Failed to fetch data from Supabase.');
+                    return [];
+                }
+    
+                if (!data || data.length === 0) {
+                    alert('No data found for the selected team and position.');
+                }
+    
+                return data;
+            } catch (err) {
+                console.error('Unexpected Error:', err);
+                alert('A network error occurred.');
+                return [];
+            }
         }
-
-        if (!data || data.length === 0) {
-            alert('No data found for the selected team and position.');
-        }
-
-        return data;
-    } catch (err) {
-        console.error('Unexpected Error:', err);
-        alert('A network error occurred.');
-        return [];
-    }
-}
-
-        document.getElementById('compareButton').addEventListener('click', async function () {
-            if (selectedTeam && selectedPosition) {
-                const selectedColumns = [
+    
+        function updateTableHeaders() {
+            const tableHead = document.querySelector('.table thead tr');
+            tableHead.innerHTML = ''; // Clear existing headers
+    
+            let headers;
+    
+            if (selectedPosition === 'QB') {
+                // QB-specific headers
+                headers = [
                     'Week',
                     'Matchup',
-                    'RushingAttempts',
-                    'Receptions'
-                ]; // Adjust columns based on position.
-                const data = await fetchDefenseData();
-                updateTableRows(data, selectedColumns);
+                    'Passing Attempts',
+                    'Completions',
+                    'Passing Yards',
+                    'Passing TDs',
+                    'Interceptions',
+                    'Rate',
+                    'Rushing Attempts',
+                    'Rushing Yards',
+                    'Avg Rush Yards',
+                    'Rushing TDs',
+                ];
             } else {
-                alert('Please select a team and position.');
+                // General defensive stats headers
+                headers = [
+                    'Week',
+                    'Matchup',
+                    'Rushing Attempts',
+                    'Total Rushing Yards',
+                    'Avg. Yards per Carry',
+                    'Rushing TDs',
+                    'Targets',
+                    'Receptions',
+                    'Total Receiving Yards',
+                    'Avg. Yards per Catch',
+                    'Receiving TDs',
+                ];
+            }
+    
+            headers.forEach((header) => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                tableHead.appendChild(th);
+            });
+        }
+    
+        function updateTableRows(rows) {
+            const tableBody = document.getElementById('statsTableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+    
+            rows.forEach((row) => {
+                const newRow = document.createElement('tr');
+    
+                if (selectedPosition === 'QB') {
+                    // Populate QB-specific rows
+                    newRow.innerHTML = `
+                        <td>${row.week}</td>
+                        <td>${row.matchup}</td>
+                        <td>${row.passing_attempts}</td>
+                        <td>${row.completions}</td>
+                        <td>${row.passing_yards}</td>
+                        <td>${row.passing_tds}</td>
+                        <td>${row.interceptions}</td>
+                        <td>${row.rate}</td>
+                        <td>${row.rushing_attempts}</td>
+                        <td>${row.rushing_yards}</td>
+                        <td>${row.avg_rushing_yards}</td>
+                        <td>${row.rushing_tds}</td>
+                    `;
+                } else {
+                    // Populate general stats rows
+                    newRow.innerHTML = `
+                        <td>${row.week}</td>
+                        <td>${row.matchup}</td>
+                        <td>${row.rushing_attempts}</td>
+                        <td>${row.total_rushing_yards}</td>
+                        <td>${row.avg_yards_per_carry}</td>
+                        <td>${row.rushing_tds}</td>
+                        <td>${row.targets}</td>
+                        <td>${row.receptions}</td>
+                        <td>${row.total_receiving_yards}</td>
+                        <td>${row.avg_yards_per_catch}</td>
+                        <td>${row.receiving_tds}</td>
+                    `;
+                }
+    
+                tableBody.appendChild(newRow);
+            });
+        }
+    
+        document.getElementById('compareButton').addEventListener('click', async function () {
+            if (selectedTeam && selectedPosition) {
+                updateTableHeaders(); // Update headers dynamically
+                const data = await fetchDefenseData();
+                updateTableRows(data); // Populate rows dynamically
+            } else {
+                alert('Please select both a team and a position.');
             }
         });
-
-        // Handle clicks on team list
+    
         document.getElementById('teamList').addEventListener('click', function (event) {
             event.preventDefault();
             if (event.target && event.target.tagName === 'A') {
@@ -239,8 +296,7 @@
                 document.getElementById('teamSelectText').textContent = selectedTeam;
             }
         });
-
-        // Handle clicks on position list
+    
         document.getElementById('positionList').addEventListener('click', function (event) {
             event.preventDefault();
             if (event.target && event.target.tagName === 'A') {
@@ -249,5 +305,3 @@
             }
         });
     </script>
-  </body>
-</html>
