@@ -65,7 +65,7 @@ def insert_player_stats(player_stats, team_mapping, valid_positions):
     INSERT INTO player_stats (
         player_name, position_id, team_id, week, passing_attempts, completions, 
         passing_yards, passing_tds, interceptions, rushing_attempts, rushing_yards, 
-        rushing_tds, receptions, receiving_yards, receiving_tds, Played
+        rushing_tds, receptions, receiving_yards, receiving_tds, snaps, opponent
     ) VALUES %s
     ON CONFLICT (player_name, team_id, week) DO UPDATE SET
         position_id = EXCLUDED.position_id,
@@ -80,7 +80,8 @@ def insert_player_stats(player_stats, team_mapping, valid_positions):
         receptions = EXCLUDED.receptions,
         receiving_yards = EXCLUDED.receiving_yards,
         receiving_tds = EXCLUDED.receiving_tds,
-        Played = EXCLUDED.Played;
+        snaps = EXCLUDED.snaps,
+        opponent = EXCLUDED.opponent;
     """
 
 
@@ -95,7 +96,7 @@ def insert_player_stats(player_stats, team_mapping, valid_positions):
                 player.get('PassingTouchdowns'), player.get('Interceptions'),
                 player.get('RushingAttempts'), player.get('RushingYards'), player.get('RushingTouchdowns'),
                 player.get('Receptions'), player.get('ReceivingYards'), player.get('ReceivingTouchdowns'),
-                player.get('Played')
+                player.get('Played'), player.get('opponent')
             ))
 
     if values:
