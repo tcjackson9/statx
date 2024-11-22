@@ -92,333 +92,231 @@
       <p>&copy; 2024 Stats X. All rights reserved.</p>
     </footer>
 
-    <script>
-       const playerNames = [
-    "Aaron Jones", "Aaron Rodgers", "Aaron Shampklin", "Adam Thielen", 
-    "Adam Trautman", "Adonai Mitchell", "Adrian Martinez", "Aidan O'Connell", 
-    "Ainias Smith", "AJ Barner", "A.J. Brown", "Alec Pierce", 
-    "Alexander Mattison", "Alex Bachman", "Allen Lazard", "Allen Robinson II", 
-    "Alvin Kamara", "Amari Cooper", "Ameer Abdullah", "Amon-Ra St. Brown", 
-    "Andrei Iosivas", "Andy Dalton", "Anthony Firkser", "Anthony Gould", 
-    "Anthony Richardson", "Antonio Gibson", "Ashton Dulin", "A.T. Perry", 
-    "Audric Estime", "Austin Ekeler", "Austin Hooper", "Austin Reed", 
-    "Avery Williams", "Bailey Zappe", "Baker Mayfield", "Ben Sims", 
-    "Ben Sinnott", "Ben Skowronek", "Bijan Robinson", "Blake Corum", 
-    "Blake Watson", "Blake Whiteheart", "Bo Melton", "Bo Nix", 
-    "Brady Russell", "Braelon Allen", "Brandin Cooks", "Brandon Aiyuk", 
-    "Brandon Allen", "Brandon Johnson", "Brandon Powell", "Braxton Berrios", 
-    "Brayden Willis", "Breece Hall", "Brenden Bates", "Brenden Rice", 
-    "Brett Rypien", "Brevin Jordan", "Brevyn Spann-Ford", "Brian Robinson Jr.", 
-    "Britain Covey", "British Brooks", "Brock Bowers", "Brock Purdy", 
-    "Brock Wright", "Bryce Ford-Wheaton", "Brycen Tremayne", "Bryce Oliver", 
-    "Bryce Young", "Bub Means", "Bucky Irving", "Cade Otton", 
-    "Cade Stover", "Caleb Williams", "Calvin Austin III", "Calvin Ridley", 
-    "Cam Akers", "Cam Grandy", "Carson Wentz", "Carter Bradley", 
-    "Casey Washington", "Cedrick Wilson Jr.", "Cedric Tillman", "CeeDee Lamb", 
-    "Charlie Jones", "Charlie Kolar", "Charlie Woerner", "Chase Brown", 
-    "Chigoziem Okonkwo", "Chris Blair", "Chris Brooks", "Chris Collier", 
-    "Chris Conley", "Chris Godwin", "Chris Manhertz", "Chris Moore", 
-    "Chris Olave", "Chris Rodriguez Jr.", "Christian McCaffrey", 
-    "Christian Watson", "Chuba Hubbard", "C.J. Stroud", "C.J. Uzomah", 
-    "Clayton Tune", "Clyde Edwards-Helaire", "Cody Schrader", "Cody Thompson", 
-    "Cody White", "Colby Parkinson", "Cole Kmet", "Collin Johnson", 
-    "Colson Yankoff", "Connor Heyward", "Cooper Kupp", "Cooper Rush", 
-    "Cordarrelle Patterson", "Courtland Sutton", "Craig Reynolds", 
-    "Curtis Samuel", "Dak Prescott", "Dallas Goedert", "Dallin Holker", 
-    "Dalton Kincaid", "Dalton Schultz", "Dalvin Cook", "Dameon Pierce", 
-    "D'Andre Swift", "Daniel Bellinger", "Daniel Jones", "Dante Miller", 
-    "Dante Pettis", "Dareke Young", "Dare Ogunbowale", "Darius Slayton", 
-    "Darnell Mooney", "Darnell Washington", "Davante Adams", "David Bell", 
-    "David Martin-Robinson", "David Montgomery", "David Moore", 
-    "David Njoku", "Davis Allen", "Davis Mills", "Dawson Knox", 
-    "DeAndre Carter", "DeAndre Hopkins", "Deebo Samuel Sr.", "Dee Eskridge", 
-    "DeeJay Dallas", "Demarcus Robinson", "Demario Douglas", 
-    "DeMario Douglas", "Deonte Harty", "Derek Carr", "Derius Davis", 
-    "Derrick Henry", "Deshaun Watson", "Desmond Ridder", "Deuce Vaughn", 
-    "Devaughn Vele", "Deven Thompkins", "Devin Culp", "Devin Singletary", 
-    "De'Von Achane", "DeVonta Smith", "Devontez Walker", "Diontae Johnson", 
-    "DJ Chark", "DJ Moore", "DJ Turner", "D.J. Williams", "DK Metcalf", 
-    "D'Onta Foreman", "Dontayvion Wicks", "Dorian Thompson-Robinson", 
-    "Drake London", "Drake Maye", "Drew Lock", "Drew Ogletree", 
-    "Drew Sample", "Durham Smythe", "Dyami Brown", "Dylan Laube", 
-    "Easton Stick", "E.J. Jenkins", "Elijah Higgins", "Elijah Moore", 
-    "Ellis Merriweather", "Emanuel Wilson", "Emari Demercado", 
-    "Equanimeous St. Brown", "Eric Gray", "Erick All Jr.", "Eric Saubert", 
-    "Eric Tomlinson", "Erik Ezukanma", "Evan Hull", "Ezekiel Elliott", 
-    "Feleipe Franks", "Foster Moreau", "Frank Gore Jr.", "Gardner Minshew II", 
-    "Garrett Wilson", "Gary Brightwell", "Geno Smith", "Geoff Swaim", 
-    "George Holani", "George Kittle", "George Pickens", "Gerald Everett", 
-    "Grant Calcaterra", "Grant DuBose", "Greg Dortch", "Greg Dulcich", 
-    "Gunner Olszewski", "Gus Edwards", "Harrison Bryant", "Hassan Haskins", 
-    "Hayden Hurst", "Hendon Hooker", "Hunter Henry", "Hunter Long", 
-    "Hunter Luepke", "Ian Thomas", "Ihmir Smith-Marsette", "Irvin Charles", 
-    "Isaac Guerendo", "Isaiah Davis", "Isaiah Hodgins", "Isaiah Likely", 
-    "Isaiah Williams", "Isiah Pacheco", "Israel Abanikanda", "Jabari Small", 
-    "Jack Plummer", "Jack Stoll", "Jacob Cowing", "Jacoby Brissett", 
-    "Jaelon Darden", "Jahan Dotson", "Jaheim Bell", "Jahmyr Gibbs", 
-    "Jake Bobo", "Jake Browning", "Jake Ferguson", "Jake Haener", 
-    "Jake Tonges", "Jakobi Meyers", "Jaleel McLaughlin", "Jalen Brooks", 
-    "Jalen Coker", "Jalen Cropper", "Jalen Hurts", "Jalen McMillan", 
-    "Jalen Nailor", "Jalen Reagor", "Jalen Tolbert", "Jalen Virgil", 
-    "Jalin Hyatt", "Ja'Lynn Polk", "Jamaal Williams", "Jamari Thrash", 
-    "Ja'Marr Chase", "Jameis Winston", "James Conner", "James Cook", 
-    "James Mitchell", "Jameson Williams", "James Proche II", 
-    "Jamison Crowder", "JaMycal Hasty", "Jared Goff", "Jared Wiley", 
-    "Jarrett Stidham", "Jase McClellan", "Ja'Tavion Sanders", 
-    "Jauan Jennings", "Javon Baker", "Javonte Williams", 
-    "Jaxon Smith-Njigba", "Jayden Daniels", "Jayden Reed", "Jaylen Johnson", 
-    "Jaylen Waddle", "Jaylen Warren", "Jaylen Wright", "Jeff Driskel", 
-    "Jeff Wilson Jr.", "Jeremy McNichols", "Jeremy Ruckert", "Jermaine Burton", "Jermaine Jackson", "Jerome Ford",
-    "Jerry Jeudy", "Jha'Quan Jackson", "Jimmy Garoppolo", "J.J. Taylor",
-    "J.K. Dobbins", "Jody Fortson", "Joe Burrow", "Joe Flacco",
-    "Joe Milton III", "Joe Mixon", "John Bates", "John FitzPatrick",
-    "John Kelly", "John Metchie III", "Johnny Mundt", "Johnny Wilson",
-    "John Ross", "John Samuel Shenker", "John Stephens Jr.", "Jonathan Mingo",
-    "Jonathan Taylor", "Jonathan Ward", "Jonathon Brooks", "Jonnu Smith",
-    "Jordan Addison", "Jordan Akins", "Jordan Love", "Jordan Mason",
-    "Jordan Matthews", "Jordan Mims", "Jordan Whittington", "Josh Allen",
-    "Josh Downs", "Josh Jacobs", "Josh Johnson", "Josh Oliver",
-    "Josh Reynolds", "Joshua Dobbs", "Joshua Kelley", "Joshua Palmer",
-    "Josh Whyle", "JuJu Smith-Schuster", "Julian Hill", "Julius Chestnut",
-    "Justice Hill", "Justin Fields", "Justin Herbert", "Justin Jefferson",
-    "Justin Shorter", "Justin Watson", "Justyn Ross", "Juwan Johnson",
-    "Kadarius Toney", "Kalif Raymond", "Kameron Johnson", "Kareem Hunt",
-    "KaVontae Turpin", "Kayshon Boutte", "Keaontay Ingram", "Keaton Mitchell",
-    "Keenan Allen", "Kendall Milton", "Kendre Miller", "Kendrick Bourne",
-    "Kendric Pryor", "Kenneth Gainwell", "Kenneth Walker III", "Kenny McIntosh",
-    "Kenny Pickett", "Kenny Yeboah", "Keon Coleman", "Kevin Austin Jr.",
-    "KhaDarel Hodge", "Khalil Herbert", "Khalil Shakir", "Kimani Vidal",
-    "Kirk Cousins", "KJ Hamler", "K.J. Osborn", "Ko Kieft",
-    "Kristian Wilkerson", "Kyle Allen", "Kylen Granson", "Kyle Pitts",
-    "Kyler Murray", "Kyle Trask", "Kyren Williams", "Ladd McConkey",
-    "Lamar Jackson", "Laquon Treadwell", "Laviska Shenault Jr.", "Lil'Jordan Humphrey",
-    "Lucas Krull", "Luke McCaffrey", "Luke Musgrave", "Luke Schoonmaker",
-    "Mack Hollins", "Malachi Corley", "Malik Heath", "Malik Nabers",
-    "Malik Washington", "Malik Willis", "Marcedes Lewis", "Marcus Mariota",
-    "Mark Andrews", "Marquez Callaway", "Marquez Valdes-Scantling", "Marquise Brown",
-    "MarShawn Lloyd", "Marvin Harrison Jr.", "Marvin Mims Jr.", "Mason Kinsey",
-    "Mason Rudolph", "Mason Tipton", "Matthew Stafford", "Mecole Hardman",
-    "Messiah Swinson", "Michael Mayer", "Michael Penix Jr.", "Michael Pittman Jr.",
-    "Michael Pratt", "Michael Wilson", "Mike Boone", "Mike Evans",
-    "Mike Gesicki", "Mike Williams", "Miles Sanders", "Mitchell Trubisky",
-    "Mitchell Wilcox", "Mo Alie-Cox", "Montrell Washington", "MyCole Pruitt",
-    "Myles Gaskin", "Najee Harris", "Nate Adkins", "Nelson Agholor",
-    "Nick Chubb", "Nick Mullens", "Nick Muse", "Nick Vannett",
-    "Nick Westbrook-Ikhine", "Nico Collins", "Nikola Kalinic", "Noah Brown",
-    "Noah Fant", "Noah Gray", "Odell Beckham Jr.", "Olamide Zaccheaus",
-    "Parker Hesse", "Parris Campbell", "Pat Freiermuth", "Patrick Mahomes",
-    "Patrick Taylor Jr.", "Payne Durham", "Peyton Hendershot", "Pharaoh Brown",
-    "Pierre Strong Jr.", "Princeton Fant", "Puka Nacua", "Quentin Johnston",
-    "Quintin Morris", "Rachaad White", "Raheem Blackshear", "Raheem Mostert",
-    "Rakim Jarrett", "Ramel Keyton", "Rasheen Ali", "Rashee Rice",
-    "Rashid Shaheed", "Rashod Bateman", "Ray Davis", "Ray-Ray McCloud III",
-    "Rhamondre Stevenson", "Ricky Pearsall", "Rico Dowdle", "River Cracraft",
-    "Robbie Chosen", "Robert Tonyan", "Robert Woods", "Rodney Williams",
-    "Roman Wilson", "Romeo Doubs", "Rome Odunze", "Ronnie Bell",
-    "Ronnie Rivers", "Roschon Johnson", "Ross Dwelley", "Russell Wilson",
-    "Ryan Flournoy", "Ryan Miller", "Samaje Perine", "Sam Darnold",
-    "Sam Ehlinger", "Sam Hartman", "Sam Howell", "Sam LaPorta",
-    "Saquon Barkley", "Scotty Miller", "Sean Clifford", "Sean Tucker",
-    "Shane Zylstra", "Simi Fehoko", "Sincere McCormick", "Sione Vaki",
-    "Skylar Thompson", "Skyy Moore", "Spencer Rattler", "Stefon Diggs",
-    "Sterling Shepard", "Stetson Bennett", "Steven Sims", "Stone Smartt",
-    "Tank Dell", "Tanner Conner", "Tanner Hudson", "Tanner McKee",
-    "Tanner McLachlan", "Taylor Heinicke", "Taysom Hill", "Teagan Quitoriano",
-    "Tee Higgins", "Terrace Marshall Jr.", "Terrell Jennings", "Terry McLaurin",
-    "Theo Johnson", "Thomas Odukoya", "Tim Boyle", "Tim Patrick",
-    "Tip Reiman", "T.J. Hockenson", "Tom Kennedy", "Tommy Devito",
-    "Tommy Tremble", "Tony Pollard", "Travis Homer", "Travis Kelce",
-    "Travis Vokolek", "Trayveon Williams", "Trenton Irwin", "Trent Sherfield Sr.",
-    "Trent Taylor", "Tre Tucker", "Trevor Siemian", "Trey Benson",
-    "Trey Lance", "Treylon Burks", "Trey McBride", "Trey Palmer",
-    "Trey Sermon", "Trishton Jackson", "Troy Franklin", "Tua Tagovailoa",
-    "Tucker Fisk", "Tucker Kraft", "Tutu Atwell", "Ty Chandler",
-    "Tyjae Spears", "Ty Johnson", "Tylan Wallace", "Tyler Allgeier",
-    "Tyler Badie", "Tyler Boyd", "Tyler Conklin", "Tyler Goodson",
-    "Tyler Huntley", "Tyler Johnson", "Tyler Lockett", "Tyler Mabry",
-    "Tyler Scott", "Tyquan Thornton", "Tyreek Hill", "Tyreik McAllister",
-    "Tyrell Shavers", "Tyrod Taylor", "Tyrone Tracy Jr.", "Tyson Bagent",
-    "Van Jefferson", "Velus Jones Jr.", "Wan'Dale Robinson", "Will Dissly",
-    "Will Levis", "Will Mallory", "Will Shipley", "Xavier Gipson",
-    "Xavier Hutchinson", "Xavier Legette", "Xavier Smith", "Xavier Weaver",
-    "Xavier Worthy", "Zach Charbonnet", "Zach Davidson", "Zach Ertz",
-    "Zach Pascal", "Zach Wilson", "Zack Moss", "Zamir White",
-    "Zay Flowers", "Zay Jones"
-  ];
-  const playerNameInput = document.getElementById("playerName");
-  const suggestionsBox = document.getElementById("suggestions");
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  
+      // Supabase credentials
+      const supabaseUrl = 'https://xrstrludepuahpovxpzb.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhyc3RybHVkZXB1YWhwb3Z4cHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1NjA5OTcsImV4cCI6MjA0NzEzNjk5N30.zi3dWGxLif4__7tSOn2-r2nS1wZI_SLBUpHGMpKMznI';
+      const supabase = createClient(supabaseUrl, supabaseKey);
+  
+      const playerNameInput = document.getElementById("playerName");
+      const suggestionsBox = document.getElementById("suggestions");
+      const form = document.getElementById('playerSearchForm');
+      const statsContainer = document.getElementById('statsContainer');
+      const cache = {}; // Simple caching mechanism for repeated queries
+      // Normalize strings for comparison
+      const normalizeString = (str) => str.toLowerCase().replace(/[-.`]/g, "").trim();
 
-  // Function to normalize strings by removing special characters and making them lowercase
-  const normalizeString = (str) => str.toLowerCase().replace(/[^a-z0-9\s]/g, "");
+      // Event listener for player name input (suggestions)
+      playerNameInput.addEventListener("input", async () => {
+          const query = normalizeString(playerNameInput.value)
+              .replace(/[-`'.]/g, ""); // Normalize user input by removing -, ', `, and .
 
-  // Event listener for input changes
-  playerNameInput.addEventListener("input", () => {
-    const query = normalizeString(playerNameInput.value); // Normalize the user input
-    suggestionsBox.innerHTML = ""; // Clear previous suggestions
+          suggestionsBox.innerHTML = ""; // Clear previous suggestions
 
-    if (query) {
-      // Filter and display matching suggestions using normalized comparison
-      const matches = playerNames.filter(name =>
-        normalizeString(name).includes(query)
-      );
-      matches.forEach(match => {
-        const suggestionItem = document.createElement("div");
-        suggestionItem.className = "suggestion-item";
-        suggestionItem.textContent = match;
-        suggestionItem.addEventListener("click", () => {
-          playerNameInput.value = match; // Set the input to the selected suggestion
-          suggestionsBox.innerHTML = ""; // Clear suggestions
-        });
-        suggestionsBox.appendChild(suggestionItem);
+          if (query) {
+              try {
+                  // Fetch player names from Supabase
+                  const { data: players, error } = await supabase
+                      .from('player_list') // Replace with your actual table name
+                      .select('player_name');
+
+                  if (error) {
+                      console.error('Error fetching player names:', error.message);
+                      return;
+                  }
+
+                  if (!players || players.length === 0) {
+                      console.log('No matching players found.');
+                      return;
+                  }
+
+                  // Normalize and filter suggestions
+                  const matchingPlayers = players.filter(player =>
+                      normalizeString(player.player_name).replace(/[-`'.]/g, "").includes(query)
+                  );
+
+                  matchingPlayers.forEach(player => {
+                      const suggestionItem = document.createElement("div");
+                      suggestionItem.className = "suggestion-item";
+                      suggestionItem.textContent = player.player_name;
+                      suggestionItem.addEventListener("click", () => {
+                          playerNameInput.value = player.player_name; // Use the exact database name
+                          suggestionsBox.innerHTML = ""; // Clear suggestions
+                      });
+                      suggestionsBox.appendChild(suggestionItem);
+                  });
+              } catch (err) {
+                  console.error('Unexpected error fetching suggestions:', err.message);
+              }
+          }
       });
-    }
-  });
+  
+      // Hide suggestions when clicking outside
+      document.addEventListener("click", (event) => {
+          if (!suggestionsBox.contains(event.target) && event.target !== playerNameInput) {
+              suggestionsBox.innerHTML = "";
+          }
+      });
+  
+      // Fetch player stats from Supabase
+      async function fetchPlayerStats(playerName) {
+          try {
+            const normalizedPlayerName = playerName.replace(/`/g, "'");
+              const { data, error } = await supabase
+                  .from('player_stats') // Replace with your actual stats table name
+                  .select(`
+                      week,
+                      position_id,
+                      rushing_attempts,
+                      rushing_yards,
+                      rushing_tds,
+                      receptions,
+                      receiving_yards,
+                      receiving_tds,
+                      passing_attempts,
+                      completions,
+                      passing_yards,
+                      passing_tds,
+                      interceptions
+                  `)
+                  .eq('player_name', normalizedPlayerName); // Use the exact name entered by the user
 
-  // Hide suggestions when clicking outside
-  document.addEventListener("click", (event) => {
-    if (!suggestionsBox.contains(event.target) && event.target !== playerNameInput) {
-      suggestionsBox.innerHTML = "";
-    }
-  });
+              if (error) {
+                  throw new Error('Failed to fetch data from Supabase.');
+              }
 
-  const form = document.getElementById('playerSearchForm');
-  const statsContainer = document.getElementById('statsContainer');
-  const cache = {}; // Simple caching mechanism for repeated queries
+              if (!data || data.length === 0) {
+                  throw new Error(`No stats found for the player "${playerName}".`);
+              }
 
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const playerName = document.getElementById('playerName').value.trim();
-
-    if (!playerName) {
-      statsContainer.innerHTML = '<p class="error">Please enter a player name.</p>';
-      return;
-    }
-
-    // Check cache
-    if (cache[playerName]) {
-      statsContainer.innerHTML = cache[playerName];
-      return;
-    }
-
-    statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
-
-    try {
-      const response = await fetch(
-        `https://api.statsx.online/api/get-player-stats?player_name=${encodeURIComponent(playerName)}`
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch stats. Please try again.');
+              return data;
+          } catch (error) {
+              console.error('Error fetching player stats:', error.message);
+              return [];
+          }
       }
-
-      const data = await response.json();
-
-          if (data.error) {
-            statsContainer.innerHTML = `<p class="error">${data.error}</p>`;
-            return;
+  
+      // Submit form to fetch and display player stats
+      form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const playerName = playerNameInput.value.trim();
+  
+          if (!playerName) {
+              statsContainer.innerHTML = '<p class="error">Please enter a player name.</p>';
+              return;
           }
-
-          data.sort((a,b) => a.week - b.week);
-
-          // Determine if the player is a QB
-          const isQB = data[0]?.position_id === 'QB';
-          const isWR = data[0]?.position_id === ('WR' || 'TE')
-
-          // Generate the table
-          let tableHtml = `<table><thead><tr>`;
-
-          if (isQB) {
-            // Columns for QB
-            tableHtml += `
-              <th>Week</th>
-              <th>Passing Attempts</th>
-              <th>Completions</th>
-              <th>Passing Yards</th>
-              <th>Passing TDs</th>
-              <th>Interceptions</th>
-              <th>Rushing Attempts</th>
-              <th>Rushing Yards</th>
-              <th>Rushing TDs</th>
-            `;
-          } 
-          else if (isWR) {
-            tableHtml += `
-              <th>Week</th>
-              <th>Receptions</th>
-              <th>Receiving Yards</th>
-              <th>Receiving TDs</th>
-              <th>Rushing Attempts</th>
-              <th>Rushing Yards</th>
-              <th>Rushing TDs</th>
-              `
+  
+          // Check cache
+          if (cache[playerName]) {
+              statsContainer.innerHTML = cache[playerName];
+              return;
           }
-          else {
-            // Columns for other positions
-            tableHtml += `
-              <th>Week</th>
-              <th>Rushing Attempts</th>
-              <th>Rushing Yards</th>
-              <th>Rushing TDs</th>
-              <th>Receptions</th>
-              <th>Receiving Yards</th>
-              <th>Receiving TDs</th>`
-            ;
+  
+          statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
+  
+          try {
+              const stats = await fetchPlayerStats(playerName);
+  
+              // Sort data by week
+              stats.sort((a, b) => a.week - b.week);
+  
+              // Determine if the player is a QB
+              const isQB = stats[0]?.position_id === 'QB';
+              const isWR = stats[0]?.position_id === ('WR' || 'TE');
+  
+              // Generate the table
+              let tableHtml = `<table><thead><tr>`;
+  
+              if (isQB) {
+                  // Columns for QB
+                  tableHtml += `
+                      <th>Week</th>
+                      <th>Passing Attempts</th>
+                      <th>Completions</th>
+                      <th>Passing Yards</th>
+                      <th>Passing TDs</th>
+                      <th>Interceptions</th>
+                      <th>Rushing Attempts</th>
+                      <th>Rushing Yards</th>
+                      <th>Rushing TDs</th>
+                  `;
+              } else if (isWR) {
+                  tableHtml += `
+                      <th>Week</th>
+                      <th>Receptions</th>
+                      <th>Receiving Yards</th>
+                      <th>Receiving TDs</th>
+                      <th>Rushing Attempts</th>
+                      <th>Rushing Yards</th>
+                      <th>Rushing TDs</th>
+                  `;
+              } else {
+                  // Columns for other positions
+                  tableHtml += `
+                      <th>Week</th>
+                      <th>Rushing Attempts</th>
+                      <th>Rushing Yards</th>
+                      <th>Rushing TDs</th>
+                      <th>Receptions</th>
+                      <th>Receiving Yards</th>
+                      <th>Receiving TDs</th>
+                  `;
+              }
+              tableHtml += '</tr></thead><tbody>';
+  
+              stats.forEach((stat) => {
+                  if (isQB) {
+                      tableHtml += `
+                          <tr>
+                              <td>${stat.week}</td>
+                              <td>${stat.passing_attempts || '0'}</td>
+                              <td>${stat.completions || '0'}</td>
+                              <td>${stat.passing_yards || '0'}</td>
+                              <td>${stat.passing_tds || '0'}</td>
+                              <td>${stat.interceptions || '0'}</td>
+                              <td>${stat.rushing_attempts || '0'}</td>
+                              <td>${stat.rushing_yards || '0'}</td>
+                              <td>${stat.rushing_tds || '0'}</td>
+                          </tr>
+                      `;
+                  } else if (isWR) {
+                      tableHtml += `
+                          <tr>
+                              <td>${stat.week}</td>
+                              <td>${stat.receptions || '0'}</td>
+                              <td>${stat.receiving_yards || '0'}</td>
+                              <td>${stat.receiving_tds || '0'}</td>
+                              <td>${stat.rushing_attempts || '0'}</td>
+                              <td>${stat.rushing_yards || '0'}</td>
+                              <td>${stat.rushing_tds || '0'}</td>
+                          </tr>
+                      `;
+                  } else {
+                      tableHtml += `
+                          <tr>
+                              <td>${stat.week}</td>
+                              <td>${stat.rushing_attempts || '0'}</td>
+                              <td>${stat.rushing_yards || '0'}</td>
+                              <td>${stat.rushing_tds || '0'}</td>
+                              <td>${stat.receptions || '0'}</td>
+                              <td>${stat.receiving_yards || '0'}</td>
+                              <td>${stat.receiving_tds || '0'}</td>
+                          </tr>
+                      `;
+                  }
+              });
+  
+              tableHtml += '</tbody></table>';
+              statsContainer.innerHTML = tableHtml;
+  
+              // Cache the response
+              cache[playerName] = tableHtml;
+          } catch (error) {
+              statsContainer.innerHTML = `<p class="error">Error fetching stats: ${error.message}</p>`;
           }
-          tableHtml += '</tr></thead><tbody>';
-
-          data.forEach((stat) => {
-            if (isQB) {
-              tableHtml += `
-                <tr>
-                  <td>${stat.week}</td>
-                  <td>${stat.passing_attempts || '0'}</td>
-                  <td>${stat.completions || '0'}</td>
-                  <td>${stat.passing_yards || '0'}</td>
-                  <td>${stat.passing_tds || '0'}</td>
-                  <td>${stat.interceptions || '0'}</td>
-                  <td>${stat.rushing_attempts || '0'}</td>
-                  <td>${stat.rushing_yards || '0'}</td>
-                  <td>${stat.rushing_tds || '0'}</td>
-                </tr>
-              `;
-            } 
-            else if (isWR){
-              tableHtml += `
-                <tr>
-                  <td>${stat.week}</td>
-                  <td>${stat.receptions || '0'}</td>
-                  <td>${stat.receiving_yards || '0'}</td>
-                  <td>${stat.receiving_tds || '0'}</td>
-                  <td>${stat.rushing_attempts || '0'}</td>
-                  <td>${stat.rushing_yards || '0'}</td>
-                  <td>${stat.rushing_tds || '0'}</td>
-                </tr>
-              `;
-            }
-            else {
-              tableHtml += `
-                <tr>
-                  <td>${stat.week}</td>
-                  <td>${stat.rushing_attempts || '0'}</td>
-                  <td>${stat.rushing_yards || '0'}</td>
-                  <td>${stat.rushing_tds || '0'}</td>
-                  <td>${stat.receptions || '0'}</td>
-                  <td>${stat.receiving_yards || '0'}</td>
-                  <td>${stat.receiving_tds || '0'}</td>
-                </tr>
-              `;
-            }
-          });
-
-          tableHtml += '</tbody></table>';
-          statsContainer.innerHTML = tableHtml;
-
-      // Cache the response
-      cache[playerName] = tableHtml;
-    } catch (error) {
-      statsContainer.innerHTML = `<p class="error">Error fetching stats: ${error.message}</p>`;
-    }
-  });
-</script>
+      });
+  </script>
   </body>
 </html>
