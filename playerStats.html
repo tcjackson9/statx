@@ -179,7 +179,8 @@
                       completions,
                       passing_yards,
                       passing_tds,
-                      interceptions
+                      interceptions,
+                      snaps
                   `)
                   .eq('player_name', normalizedPlayerName); // Use the exact name entered by the user
 
@@ -197,126 +198,206 @@
               return [];
           }
       }
-  
-      // Submit form to fetch and display player stats
-      form.addEventListener('submit', async (event) => {
-          event.preventDefault();
-          const playerName = playerNameInput.value.trim();
-  
-          if (!playerName) {
-              statsContainer.innerHTML = '<p class="error">Please enter a player name.</p>';
-              return;
+  // Fetch player averages from Supabase
+  async function fetchPlayerAverages(playerName) {
+      try {
+          const { data, error } = await supabase
+              .from('player_averages') // Replace with your actual averages table name
+              .select(`
+                  avg_passing_attempts,
+                  avg_completions,
+                  avg_passing_yards,
+                  avg_passing_tds,
+                  avg_interceptions,
+                  avg_rushing_attempts,
+                  avg_rushing_yards,
+                  avg_rushing_tds,
+                  avg_receptions,
+                  avg_receiving_yards,
+                  avg_receiving_tds,
+                  avg_snaps
+              `)
+              .eq('player_name', playerName);
+
+          if (error) {
+              throw new Error('Failed to fetch player averages from Supabase.');
           }
-  
-          // Check cache
-          if (cache[playerName]) {
-              statsContainer.innerHTML = cache[playerName];
-              return;
+
+          if (!data || data.length === 0) {
+              console.log(`No averages found for player "${playerName}".`);
+              return null;
           }
-  
-          statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
-  
-          try {
-              const stats = await fetchPlayerStats(playerName);
-  
-              // Sort data by week
-              stats.sort((a, b) => a.week - b.week);
-  
-              // Determine if the player is a QB
-              const isQB = stats[0]?.position_id === 'QB';
-              const isWR = stats[0]?.position_id === ('WR' || 'TE');
-  
-              // Generate the table
-              let tableHtml = `<table><thead><tr>`;
-  
+
+          return data[0]; // Return the first result
+      } catch (error) {
+          console.error('Error fetching player averages:', error.message);
+          return null;
+      }
+  }
+
+  // Submit form to fetch and display player stats and averages
+  form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const playerName = playerNameInput.value.trim();
+
+      if (!playerName) {
+          statsContainer.innerHTML = '<p class="error">Please enter a player name.</p>';
+          return;
+      }
+
+      // Check cache
+      if (cache[playerName]) {
+          statsContainer.innerHTML = cache[playerName];
+          return;
+      }
+
+      statsContainer.innerHTML = '<p class="loading">Loading stats...</p>';
+
+      try {
+          const stats = await fetchPlayerStats(playerName);
+          const averages = await fetchPlayerAverages(playerName);
+
+          // Sort data by week
+          stats.sort((a, b) => a.week - b.week);
+
+          // Determine if the player is a QB
+          const isQB = stats[0]?.position_id === 'QB';
+          const isWR = stats[0]?.position_id === ('WR' || 'TE');
+
+          // Generate the table
+          let tableHtml = `<table><thead><tr>`;
+
+          if (isQB) {
+              // Columns for QB
+              tableHtml += `
+                  <th>Week</th>
+                  <th>Passing Attempts</th>
+                  <th>Completions</th>
+                  <th>Passing Yards</th>
+                  <th>Passing TDs</th>
+                  <th>Interceptions</th>
+                  <th>Rushing Attempts</th>
+                  <th>Rushing Yards</th>
+                  <th>Rushing TDs</th>
+                  <th>Played</th>
+              `;
+          } else if (isWR) {
+              tableHtml += `
+                  <th>Week</th>
+                  <th>Receptions</th>
+                  <th>Receiving Yards</th>
+                  <th>Receiving TDs</th>
+                  <th>Rushing Attempts</th>
+                  <th>Rushing Yards</th>
+                  <th>Rushing TDs</th>
+                  <th>Played</th>
+              `;
+          } else {
+              // Columns for other positions
+              tableHtml += `
+                  <th>Week</th>
+                  <th>Rushing Attempts</th>
+                  <th>Rushing Yards</th>
+                  <th>Rushing TDs</th>
+                  <th>Receptions</th>
+                  <th>Receiving Yards</th>
+                  <th>Receiving TDs</th>
+                  <th>Played</th>
+              `;
+          }
+          tableHtml += '</tr></thead><tbody>';
+
+          // Add player stats rows
+          stats.forEach((stat) => {
+              const playedStatus = stat.snaps === 1 ? "Yes" : "No";
               if (isQB) {
-                  // Columns for QB
                   tableHtml += `
-                      <th>Week</th>
-                      <th>Passing Attempts</th>
-                      <th>Completions</th>
-                      <th>Passing Yards</th>
-                      <th>Passing TDs</th>
-                      <th>Interceptions</th>
-                      <th>Rushing Attempts</th>
-                      <th>Rushing Yards</th>
-                      <th>Rushing TDs</th>
+                      <tr>
+                          <td>${stat.week}</td>
+                          <td>${stat.passing_attempts || '0'}</td>
+                          <td>${stat.completions || '0'}</td>
+                          <td>${stat.passing_yards || '0'}</td>
+                          <td>${stat.passing_tds || '0'}</td>
+                          <td>${stat.interceptions || '0'}</td>
+                          <td>${stat.rushing_attempts || '0'}</td>
+                          <td>${stat.rushing_yards || '0'}</td>
+                          <td>${stat.rushing_tds || '0'}</td>
+                          <td>${playedStatus}</td>
+                      </tr>
                   `;
               } else if (isWR) {
                   tableHtml += `
-                      <th>Week</th>
-                      <th>Receptions</th>
-                      <th>Receiving Yards</th>
-                      <th>Receiving TDs</th>
-                      <th>Rushing Attempts</th>
-                      <th>Rushing Yards</th>
-                      <th>Rushing TDs</th>
+                      <tr>
+                          <td>${stat.week}</td>
+                          <td>${stat.receptions || '0'}</td>
+                          <td>${stat.receiving_yards || '0'}</td>
+                          <td>${stat.receiving_tds || '0'}</td>
+                          <td>${stat.rushing_attempts || '0'}</td>
+                          <td>${stat.rushing_yards || '0'}</td>
+                          <td>${stat.rushing_tds || '0'}</td>
+                          <td>${playedStatus}</td>
+                      </tr>
                   `;
               } else {
-                  // Columns for other positions
                   tableHtml += `
-                      <th>Week</th>
-                      <th>Rushing Attempts</th>
-                      <th>Rushing Yards</th>
-                      <th>Rushing TDs</th>
-                      <th>Receptions</th>
-                      <th>Receiving Yards</th>
-                      <th>Receiving TDs</th>
+                      <tr>
+                          <td>${stat.week}</td>
+                          <td>${stat.rushing_attempts || '0'}</td>
+                          <td>${stat.rushing_yards || '0'}</td>
+                          <td>${stat.rushing_tds || '0'}</td>
+                          <td>${stat.receptions || '0'}</td>
+                          <td>${stat.receiving_yards || '0'}</td>
+                          <td>${stat.receiving_tds || '0'}</td>
+                          <td>${playedStatus}</td>
+                      </tr>
                   `;
               }
-              tableHtml += '</tr></thead><tbody>';
-  
-              stats.forEach((stat) => {
-                  if (isQB) {
-                      tableHtml += `
-                          <tr>
-                              <td>${stat.week}</td>
-                              <td>${stat.passing_attempts || '0'}</td>
-                              <td>${stat.completions || '0'}</td>
-                              <td>${stat.passing_yards || '0'}</td>
-                              <td>${stat.passing_tds || '0'}</td>
-                              <td>${stat.interceptions || '0'}</td>
-                              <td>${stat.rushing_attempts || '0'}</td>
-                              <td>${stat.rushing_yards || '0'}</td>
-                              <td>${stat.rushing_tds || '0'}</td>
-                          </tr>
-                      `;
-                  } else if (isWR) {
-                      tableHtml += `
-                          <tr>
-                              <td>${stat.week}</td>
-                              <td>${stat.receptions || '0'}</td>
-                              <td>${stat.receiving_yards || '0'}</td>
-                              <td>${stat.receiving_tds || '0'}</td>
-                              <td>${stat.rushing_attempts || '0'}</td>
-                              <td>${stat.rushing_yards || '0'}</td>
-                              <td>${stat.rushing_tds || '0'}</td>
-                          </tr>
-                      `;
-                  } else {
-                      tableHtml += `
-                          <tr>
-                              <td>${stat.week}</td>
-                              <td>${stat.rushing_attempts || '0'}</td>
-                              <td>${stat.rushing_yards || '0'}</td>
-                              <td>${stat.rushing_tds || '0'}</td>
-                              <td>${stat.receptions || '0'}</td>
-                              <td>${stat.receiving_yards || '0'}</td>
-                              <td>${stat.receiving_tds || '0'}</td>
-                          </tr>
-                      `;
-                  }
-              });
-  
-              tableHtml += '</tbody></table>';
-              statsContainer.innerHTML = tableHtml;
-  
-              // Cache the response
-              cache[playerName] = tableHtml;
-          } catch (error) {
-              statsContainer.innerHTML = `<p class="error">Error fetching stats: ${error.message}</p>`;
+          });
+
+          if (averages) {
+              tableHtml += `
+                  <tr style="font-weight: bold; background-color: #f1f1f1;">
+                      <td>Averages</td>
+                      ${isQB ? `
+                          <td>${(averages.avg_passing_attempts || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_completions || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_passing_yards || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_passing_tds || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_interceptions || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_attempts || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_yards || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_tds || 0).toFixed(2)}</td>
+                          <td>-</td>
+                      ` : isWR ? `
+                          <td>${(averages.avg_receptions || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_receiving_yards || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_receiving_tds || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_attempts || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_yards || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_tds || 0).toFixed(2)}</td>
+                          <td>-</td>
+                      ` : `
+                          <td>${(averages.avg_rushing_attempts || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_yards || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_rushing_tds || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_receptions || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_receiving_yards || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_receiving_tds || 0).toFixed(2)}</td>
+                          <td>-</td>
+                      `}
+                  </tr>
+              `;
           }
-      });
+
+          tableHtml += '</tbody></table>';
+          statsContainer.innerHTML = tableHtml;
+
+          // Cache the response
+          cache[playerName] = tableHtml;
+      } catch (error) {
+          statsContainer.innerHTML = `<p class="error">Error fetching stats: ${error.message}</p>`;
+      }
+});
   </script>
   </body>
 </html>
