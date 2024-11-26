@@ -180,7 +180,8 @@
                       passing_yards,
                       passing_tds,
                       interceptions,
-                      snaps
+                      snaps,
+                      opponent
                   `)
                   .eq('player_name', normalizedPlayerName); // Use the exact name entered by the user
 
@@ -271,6 +272,7 @@
               // Columns for QB
               tableHtml += `
                   <th>Week</th>
+                  <th>Opponent</th>
                   <th>Passing Attempts</th>
                   <th>Completions</th>
                   <th>Passing Yards</th>
@@ -284,6 +286,7 @@
           } else if (isWR) {
               tableHtml += `
                   <th>Week</th>
+                  <th>Opponent</th>
                   <th>Receptions</th>
                   <th>Receiving Yards</th>
                   <th>Receiving TDs</th>
@@ -296,6 +299,7 @@
               // Columns for other positions
               tableHtml += `
                   <th>Week</th>
+                  <th>Opponent</th>
                   <th>Rushing Attempts</th>
                   <th>Rushing Yards</th>
                   <th>Rushing TDs</th>
@@ -314,6 +318,7 @@
                   tableHtml += `
                       <tr>
                           <td>${stat.week}</td>
+                          <td>${stat.opponent}</td>
                           <td>${stat.passing_attempts || '0'}</td>
                           <td>${stat.completions || '0'}</td>
                           <td>${stat.passing_yards || '0'}</td>
@@ -329,6 +334,7 @@
                   tableHtml += `
                       <tr>
                           <td>${stat.week}</td>
+                          <td>${stat.opponent}</td>
                           <td>${stat.receptions || '0'}</td>
                           <td>${stat.receiving_yards || '0'}</td>
                           <td>${stat.receiving_tds || '0'}</td>
@@ -342,6 +348,7 @@
                   tableHtml += `
                       <tr>
                           <td>${stat.week}</td>
+                          <td>${stat.opponent}</td>
                           <td>${stat.rushing_attempts || '0'}</td>
                           <td>${stat.rushing_yards || '0'}</td>
                           <td>${stat.rushing_tds || '0'}</td>
@@ -359,6 +366,7 @@
                   <tr style="font-weight: bold; background-color: #f1f1f1;">
                       <td>Averages</td>
                       ${isQB ? `
+                            <td>-</td>
                           <td>${(averages.avg_passing_attempts || 0).toFixed(2)}</td>
                           <td>${(averages.avg_completions || 0).toFixed(2)}</td>
                           <td>${(averages.avg_passing_yards || 0).toFixed(2)}</td>
@@ -369,6 +377,7 @@
                           <td>${(averages.avg_rushing_tds || 0).toFixed(2)}</td>
                           <td>-</td>
                       ` : isWR ? `
+                            <td>-</td>
                           <td>${(averages.avg_receptions || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receiving_yards || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receiving_tds || 0).toFixed(2)}</td>
@@ -377,6 +386,7 @@
                           <td>${(averages.avg_rushing_tds || 0).toFixed(2)}</td>
                           <td>-</td>
                       ` : `
+                            <td>-</td>
                           <td>${(averages.avg_rushing_attempts || 0).toFixed(2)}</td>
                           <td>${(averages.avg_rushing_yards || 0).toFixed(2)}</td>
                           <td>${(averages.avg_rushing_tds || 0).toFixed(2)}</td>
