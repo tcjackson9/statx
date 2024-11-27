@@ -93,25 +93,20 @@ def insert_all_defense_averages(general_averages, qb_averages):
     execute_values(cursor, general_query, general_averages)
 
     # Insert QB Averages
+    # Delete the first row in all_defense_averages_qb
+    delete_query = "DELETE FROM all_defense_averages_qb WHERE id = 1;"
+    cursor.execute(delete_query)
+
+    # Insert QB Averages
     qb_query = """
     INSERT INTO all_defense_averages_qb (
-        avg_passing_attempts, avg_completions, avg_passing_yards, avg_passing_tds,
+        id, avg_passing_attempts, avg_completions, avg_passing_yards, avg_passing_tds,
         avg_interceptions, avg_rate, avg_qb_rushing_attempts, avg_qb_rushing_yards,
         avg_qb_avg_rushing_yards, avg_qb_rushing_tds
-    ) VALUES %s
-    ON CONFLICT (id) DO UPDATE SET
-        avg_passing_attempts = EXCLUDED.avg_passing_attempts,
-        avg_completions = EXCLUDED.avg_completions,
-        avg_passing_yards = EXCLUDED.avg_passing_yards,
-        avg_passing_tds = EXCLUDED.avg_passing_tds,
-        avg_interceptions = EXCLUDED.avg_interceptions,
-        avg_rate = EXCLUDED.avg_rate,
-        avg_qb_rushing_attempts = EXCLUDED.avg_qb_rushing_attempts,
-        avg_qb_rushing_yards = EXCLUDED.avg_qb_rushing_yards,
-        avg_qb_avg_rushing_yards = EXCLUDED.avg_qb_avg_rushing_yards,
-        avg_qb_rushing_tds = EXCLUDED.avg_qb_rushing_tds;
+    ) VALUES %s;
     """
-    execute_values(cursor, qb_query, [qb_averages])
+    qb_averages_with_id = (1, *qb_averages)
+    execute_values(cursor, qb_query, [qb_averages_with_id])
 
     conn.commit()
     cursor.close()
