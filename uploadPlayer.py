@@ -92,11 +92,11 @@ def insert_player_stats(player_stats, team_mapping, valid_positions):
         if team_id and position_id in valid_positions:
             values.append((
                 player.get('Name'), position_id, team_id, player.get('Week'),
-                player.get('PassingAttempts'), player.get('Completions'), player.get('PassingYards'),
-                player.get('PassingTouchdowns'), player.get('Interceptions'),
+                player.get('PassingAttempts'), player.get('PassingCompletions'), player.get('PassingYards'),
+                player.get('PassingTouchdowns'), player.get('PassingInterceptions'),
                 player.get('RushingAttempts'), player.get('RushingYards'), player.get('RushingTouchdowns'),
                 player.get('Receptions'), player.get('ReceivingYards'), player.get('ReceivingTouchdowns'),
-                player.get('Played'), player.get('opponent')
+                player.get('Played'), player.get('Opponent')
             ))
 
     if values:

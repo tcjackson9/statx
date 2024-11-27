@@ -178,11 +178,30 @@ body {
 }
 
 /* Container for the output to organize each week's stats in a grid */
-#output {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 20px;
+#statsContainer {
+  min-height: 0px; /* Initial height to prevent layout shifting */
+  margin-top: 20px; /* Adds consistent spacing from the form */
+  text-align: center;
+  overflow: hidden; /* Prevents overflow until content is added */
+  transition: all 0.3s ease; /* Smooth transition for any size change */
+}
+
+/* When stats are displayed */
+#statsContainer.expanded {
+  min-height: 300px; /* Ensures enough space when content is added */
+  max-height: calc(100vh - 150px); /* Dynamically adjusts but prevents exceeding viewport */
+  overflow-y: auto; /* Allows scrolling for large content */
+}
+
+/* Adjust padding to ensure header and footer visibility */
+body {
+  padding-top: 60px; /* Leaves space for the fixed header */
+  padding-bottom: 60px; /* Leaves space for the fixed footer */
+  background-color: #ffffff; /* Maintains clean layout */
+}
+
+header, footer {
+  z-index: 1000; /* Ensures header and footer stay on top of other elements */
 }
 
 /* Style each week's stats group */
