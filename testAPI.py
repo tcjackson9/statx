@@ -211,6 +211,52 @@ def determine_position(player_name):
         return "TE"
     else:
         return None
+    
+def map_columns(df, table_index):
+    """Map scraped columns to database columns based on the table index."""
+    if table_index == 0:  # Passing stats
+        column_mapping = {
+            "Player": "player_name",
+            "Team": "team_id",
+            "Att": "passing_attempts",
+            "Comp": "completions",
+            "Yds": "passing_yards",
+            "TD": "passing_tds",
+            "Int": "interceptions"
+        }
+    elif table_index == 1:  # Rushing stats
+        column_mapping = {
+            "Player": "player_name",
+            "Team": "team_id",
+            "Att": "rushing_attempts",
+            "Yds": "rushing_yards",
+            "TD": "rushing_tds"
+        }
+    elif table_index == 2:  # Receiving stats
+        column_mapping = {
+            "Player": "player_name",
+            "Team": "team_id",
+            "Rec": "receptions",
+            "Yds": "receiving_yards",
+            "TD": "receiving_tds"
+        }
+    else:
+        raise ValueError("Invalid table index!")
+
+    # Rename columns to match database schema
+    df = df.rename(columns=column_mapping)
+
+    # Add missing columns with default values
+    for col in [
+        "snaps", "opponent", "passing_attempts", "completions",
+        "passing_yards", "passing_tds", "interceptions",
+        "rushing_attempts", "rushing_yards", "rushing_tds",
+        "receptions", "receiving_yards", "receiving_tds"
+    ]:
+        if col not in df.columns:
+            df[col] = None
+
+    return df
 
 def upload_stats_to_db(data, week):
     """Upload player stats to the database."""
@@ -221,7 +267,7 @@ def upload_stats_to_db(data, week):
     INSERT INTO player_stats (
         player_name, position_id, team_id, week,
         passing_attempts, completions, passing_yards, passing_tds,
-        rushing_attempts, rushing_yards, rushing_tds,
+        interceptions, rushing_attempts, rushing_yards, rushing_tds,
         receptions, receiving_yards, receiving_tds
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (player_name, team_id, week) DO UPDATE SET
@@ -229,6 +275,7 @@ def upload_stats_to_db(data, week):
         completions = EXCLUDED.completions,
         passing_yards = EXCLUDED.passing_yards,
         passing_tds = EXCLUDED.passing_tds,
+        interceptions = EXCLUDED.interceptions,
         rushing_attempts = EXCLUDED.rushing_attempts,
         rushing_yards = EXCLUDED.rushing_yards,
         rushing_tds = EXCLUDED.rushing_tds,
@@ -238,39 +285,43 @@ def upload_stats_to_db(data, week):
     """
 
     for _, row in data.iterrows():
-        position = determine_position(row['Player'])
+        position = determine_position(row["player_name"])
         if position:
             position_id = position_map[position]
             try:
                 cursor.execute(query, (
-                    row['Player'], position_id, row['Team'], week,
-                    row.get('PassingAttempts'), row.get('Completions'), row.get('PassingYards'), row.get('PassingTDs'),
-                    row.get('RushingAttempts'), row.get('RushingYards'), row.get('RushingTDs'),
-                    row.get('Receptions'), row.get('ReceivingYards'), row.get('ReceivingTDs')
+                    row["player_name"], position_id, row["team_id"], week,
+                    row.get("passing_attempts"), row.get("completions"),
+                    row.get("passing_yards"), row.get("passing_tds"),
+                    row.get("interceptions"), row.get("rushing_attempts"),
+                    row.get("rushing_yards"), row.get("rushing_tds"),
+                    row.get("receptions"), row.get("receiving_yards"),
+                    row.get("receiving_tds")
                 ))
             except Exception as e:
-                print(f"Error inserting data for {row['Player']}: {e}")
+                print(f"Error inserting data for {row['player_name']}: {e}")
 
     conn.commit()
     cursor.close()
     conn.close()
 
+
 def scrape_stats(url):
     """Scrape stats from the website."""
     response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    table = soup.find('table')
-    
+    soup = BeautifulSoup(response.content, "html.parser")
+    table = soup.find("table")
+
     if not table:
         print("Stats table not found on the page.")
         return None
 
-    headers = [th.text.strip() for th in table.find('thead').find_all('th')]
-    rows = table.find('tbody').find_all('tr')
+    headers = [th.text.strip() for th in table.find("thead").find_all("th")]
+    rows = table.find("tbody").find_all("tr")
 
     data = []
     for row in rows:
-        cols = row.find_all(['th', 'td'])
+        cols = row.find_all(["th", "td"])
         data.append([col.text.strip() for col in cols])
 
     df = pd.DataFrame(data, columns=headers)
@@ -289,8 +340,12 @@ def main():
 
             print(f"Scraping stats for week {week}, table {table_index}...")
             stats = scrape_stats(url)
-            
+
             if stats is not None:
+                # Map the columns
+                stats = map_columns(stats, table_index)
+
+                # Upload stats to the database
                 print(f"Uploading stats for week {week}, table {table_index} to the database...")
                 upload_stats_to_db(stats, week)
                 print(f"Stats for week {week}, table {table_index} successfully uploaded.")
@@ -298,6 +353,7 @@ def main():
                 print(f"No stats found for week {week}, table {table_index}. Moving to the next.")
 
     print("Completed scraping and uploading stats for all weeks and tables.")
+
 
 if __name__ == "__main__":
     main()
