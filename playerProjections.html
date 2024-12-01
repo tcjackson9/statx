@@ -132,85 +132,88 @@
 
     <script type="module">
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
+    
       // Supabase credentials
       const supabaseUrl = 'https://xrstrludepuahpovxpzb.supabase.co';
       const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhyc3RybHVkZXB1YWhwb3Z4cHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1NjA5OTcsImV4cCI6MjA0NzEzNjk5N30.zi3dWGxLif4__7tSOn2-r2nS1wZI_SLBUpHGMpKMznI'; // Replace with your actual key
       const supabase = createClient(supabaseUrl, supabaseKey);
-
+    
       const playerNameInput = document.getElementById("playerName");
       const defenseTeamSelect = document.getElementById("defenseTeam");
       const suggestionsBox = document.getElementById("suggestions");
       const form = document.getElementById("projectionForm");
       const statsContainer = document.getElementById("statsContainer");
-
+    
       const normalizeString = (str) => str.toLowerCase().replace(/[-.`]/g, "").trim();
-
+    
       // Event listener for player name input (suggestions)
       playerNameInput.addEventListener("input", async () => {
-          const query = normalizeString(playerNameInput.value)
-              .replace(/[-`'.]/g, ""); // Normalize user input by removing -, ', `, and .
-
-          suggestionsBox.innerHTML = ""; // Clear previous suggestions
-
-          if (query) {
-              try {
-                  // Fetch player names from Supabase
-                  const { data: players, error } = await supabase
-                      .from('player_list') // Replace with your actual table name
-                      .select('player_name');
-
-                  if (error) {
-                      console.error('Error fetching player names:', error.message);
-                      return;
-                  }
-
-                  if (!players || players.length === 0) {
-                      console.log('No matching players found.');
-                      return;
-                  }
-
-                  // Normalize and filter suggestions
-                  const matchingPlayers = players.filter(player =>
-                      normalizeString(player.player_name).replace(/[-`'.]/g, "").includes(query)
-                  );
-
-                  matchingPlayers.forEach(player => {
-                      const suggestionItem = document.createElement("div");
-                      suggestionItem.className = "suggestion-item";
-                      suggestionItem.textContent = player.player_name;
-                      suggestionItem.addEventListener("click", () => {
-                          playerNameInput.value = player.player_name; // Use the exact database name
-                          suggestionsBox.innerHTML = ""; // Clear suggestions
-                      });
-                      suggestionsBox.appendChild(suggestionItem);
-                  });
-              } catch (err) {
-                  console.error('Unexpected error fetching suggestions:', err.message);
-              }
+        const query = normalizeString(playerNameInput.value).replace(/[-`'.]/g, "");
+    
+        suggestionsBox.innerHTML = ""; // Clear previous suggestions
+    
+        if (query) {
+          try {
+            // Fetch player names from Supabase
+            const { data: players, error } = await supabase
+              .from('player_list') // Replace with your actual table name
+              .select('player_name');
+    
+            console.log("Fetching player list for suggestions...");
+            console.log(players);
+    
+            if (error) {
+              console.error('Error fetching player names:', error.message);
+              return;
+            }
+    
+            if (!players || players.length === 0) {
+              console.log('No matching players found.');
+              return;
+            }
+    
+            // Normalize and filter suggestions
+            const matchingPlayers = players.filter(player =>
+              normalizeString(player.player_name).includes(query)
+            );
+    
+            matchingPlayers.forEach(player => {
+              const suggestionItem = document.createElement("div");
+              suggestionItem.className = "suggestion-item";
+              suggestionItem.textContent = player.player_name;
+              suggestionItem.addEventListener("click", () => {
+                playerNameInput.value = player.player_name; // Use the exact database name
+                suggestionsBox.innerHTML = ""; // Clear suggestions
+              });
+              suggestionsBox.appendChild(suggestionItem);
+            });
+          } catch (err) {
+            console.error('Unexpected error fetching suggestions:', err.message);
           }
+        }
       });
-  
+    
       // Hide suggestions when clicking outside
       document.addEventListener("click", (event) => {
-          if (!suggestionsBox.contains(event.target) && event.target !== playerNameInput) {
-              suggestionsBox.innerHTML = "";
-          }
+        if (!suggestionsBox.contains(event.target) && event.target !== playerNameInput) {
+          suggestionsBox.innerHTML = "";
+        }
       });
+    
       // Form submission to generate projections
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
-
+    
         const playerName = playerNameInput.value.replace(/`/g, "'").trim();
         const defenseTeam = defenseTeamSelect.value;
-
+    
         if (!playerName || !defenseTeam) {
           statsContainer.innerHTML = '<p class="error">Please select a player and a defense.</p>';
           return;
         }
-
+    
         statsContainer.innerHTML = '<p class="loading">Generating projections...</p>';
-
+    
         try {
           // Fetch player data
           const { data: playerData, error: playerError } = await supabase
@@ -218,88 +221,94 @@
             .select("*")
             .eq("player_name", playerName)
             .single();
-
+    
+          console.log("Fetching player data...");
+          console.log(playerData);
+    
           if (playerError || !playerData) {
             throw new Error(`Player data not found for "${playerName}".`);
           }
-
+    
           // Fetch specific defense averages
           const defenseTable = playerData.position_id === "QB" ? "defense_averages_qb" : "defense_averages";
           const query = supabase.from(defenseTable).select("*").eq("team_id", defenseTeam);
-
+    
           if (playerData.position_id !== "QB") {
             query.eq("position_id", playerData.position_id); // Add position_id filter for non-QBs
           }
-
+    
           const { data: defenseStats, error: defenseError } = await query;
-
-
+    
+          console.log("Fetching specific defense data...");
+          console.log(defenseStats);
+    
           if (defenseError || !defenseStats || defenseStats.length === 0) {
             throw new Error(`No defensive stats found for team: ${defenseTeam} and position: ${playerData.position_id}.`);
           }
-
+    
           const specificDefense = defenseStats[0];
-
+    
           // Fetch league-wide defense averages
           const allDefenseTable = playerData.position_id === "QB" ? "all_defense_averages_qb" : "all_defense_averages";
           let query1 = supabase.from(allDefenseTable).select("*");
-
+    
           if (playerData.position_id !== "QB") {
             query1 = query1.eq("position_id", playerData.position_id); // Add position_id filter for non-QBs
           }
-
+    
           const { data: leagueDefense, error: leagueError } = await query1.single();
-
+    
+          console.log("Fetching league-wide defense averages...");
+          console.log(leagueDefense);
+    
           if (leagueError || !leagueDefense) {
             throw new Error(`No league-wide defense stats found for position: ${playerData.position_id}.`);
           }
-
-
+    
+          // Projection logic
           const projection = {};
           for (const key in playerData) {
             if (key.startsWith("avg_")) {
               const statKey = key.replace("avg_", ""); // Remove "avg_" prefix for readability
-              const specificStat = specificDefense[`avg_${statKey}`]; // Add "avg_" back for defense stats
-              const leagueStat = leagueDefense[`avg_${statKey}`]; // Add "avg_" back for league-wide stats
-
+              const specificStat = specificDefense[`avg_${statKey}`];
+              const leagueStat = leagueDefense[`avg_${statKey}`];
+    
               if (specificStat !== undefined && leagueStat !== undefined) {
-                // Calculate projection based on player average and defense stats
                 projection[statKey] = (
                   playerData[key] * (specificStat / leagueStat)
                 ).toFixed(2);
               } else {
-                // Log missing data and fallback to player average
                 console.warn(`Missing data for avg_${statKey}. Defaulting to player average.`);
                 projection[statKey] = playerData[key].toFixed(2);
               }
             }
           }
-
-          // Filter projections based on player position
+    
           const positionStats = {
             QB: ["passing_attempts", "completions", "passing_yards", "passing_tds", "interceptions", "rushing_attempts", "rushing_yards", "rushing_tds"],
             WR: ["receptions", "receiving_yards", "receiving_tds"],
             TE: ["receptions", "receiving_yards", "receiving_tds"],
             RB: ["rushing_attempts", "rushing_yards", "rushing_tds", "receptions", "receiving_yards", "receiving_tds"],
           };
-
+    
           const allowedStats = positionStats[playerData.position_id] || [];
           const filteredProjection = Object.fromEntries(
             Object.entries(projection).filter(([key]) => allowedStats.includes(key))
           );
-
+    
           // Display projections in a table
           let tableHtml = '<table><thead><tr><th>Stat</th><th>Projection</th></tr></thead><tbody>';
           for (const [stat, value] of Object.entries(filteredProjection)) {
             tableHtml += `<tr><td>${stat.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}</td><td>${value}</td></tr>`;
           }
           tableHtml += "</tbody></table>";
-
+    
           statsContainer.innerHTML = tableHtml;
         } catch (error) {
           statsContainer.innerHTML = `<p class="error">Error: ${error.message}</p>`;
         }
       });
     </script>
+    
   </body>
 </html>
