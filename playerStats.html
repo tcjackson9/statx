@@ -273,6 +273,7 @@
               // Columns for QB
               tableHtml += `
                   <th>Week</th>
+                  <th>Matchup</th>
                   <th>Opponent</th>
                   <th>Passing Attempts</th>
                   <th>Completions</th>
@@ -287,6 +288,7 @@
           } else if (isWR) {
               tableHtml += `
                   <th>Week</th>
+                  <th>Matchup</th>
                   <th>Opponent</th>
                   <th>Receptions</th>
                   <th>Receiving Yards</th>
@@ -300,6 +302,7 @@
               // Columns for other positions
               tableHtml += `
                   <th>Week</th>
+                  <th>Matchup</th>
                   <th>Opponent</th>
                   <th>Rushing Attempts</th>
                   <th>Rushing Yards</th>
@@ -319,6 +322,7 @@
                   tableHtml += `
                       <tr>
                           <td>${stat.week}</td>
+                          <td>${stat.matchup}</td>
                           <td>${stat.opponent}</td>
                           <td>${stat.passing_attempts || '0'}</td>
                           <td>${stat.completions || '0'}</td>
@@ -335,6 +339,7 @@
                   tableHtml += `
                       <tr>
                           <td>${stat.week}</td>
+                          <td>${stat.matchup}</td>
                           <td>${stat.opponent}</td>
                           <td>${stat.receptions || '0'}</td>
                           <td>${stat.receiving_yards || '0'}</td>
@@ -349,6 +354,7 @@
                   tableHtml += `
                       <tr>
                           <td>${stat.week}</td>
+                          <td>${stat.matchup}</td>
                           <td>${stat.opponent}</td>
                           <td>${stat.rushing_attempts || '0'}</td>
                           <td>${stat.rushing_yards || '0'}</td>
