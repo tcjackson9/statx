@@ -46,6 +46,7 @@ def fetch_and_calculate_averages():
             AVG(receptions) AS avg_receptions,
             AVG(receiving_yards) AS avg_receiving_yards,
             AVG(receiving_tds) AS avg_receiving_tds,
+            AVG(targets) AS avg_targets,  -- New column for targets
             AVG(snaps) AS avg_snaps
         FROM player_stats
         WHERE snaps = 1
@@ -80,8 +81,8 @@ def insert_player_averages(averages):
     INSERT INTO player_averages (
         player_name, position_id, team_id, avg_passing_attempts, avg_completions, avg_passing_yards,
         avg_passing_tds, avg_interceptions, avg_rushing_attempts, avg_rushing_yards,
-        avg_rushing_tds, avg_receptions, avg_receiving_yards, avg_receiving_tds, avg_snaps
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        avg_rushing_tds, avg_receptions, avg_receiving_yards, avg_receiving_tds, avg_targets, avg_snaps
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON CONFLICT (player_name, position_id) DO UPDATE SET
         avg_passing_attempts = EXCLUDED.avg_passing_attempts,
         avg_completions = EXCLUDED.avg_completions,
@@ -94,12 +95,13 @@ def insert_player_averages(averages):
         avg_receptions = EXCLUDED.avg_receptions,
         avg_receiving_yards = EXCLUDED.avg_receiving_yards,
         avg_receiving_tds = EXCLUDED.avg_receiving_tds,
+        avg_targets = EXCLUDED.avg_targets,  -- Handle targets in conflict resolution
         avg_snaps = EXCLUDED.avg_snaps;
     """
 
     for row in averages:
-        if len(row) != 15:  # Ensure the row has the correct number of elements
-            print(f"Skipping invalid row (expected 15 elements, got {len(row)}): {row}")
+        if len(row) != 16:  # Ensure the row has the correct number of elements
+            print(f"Skipping invalid row (expected 16 elements, got {len(row)}): {row}")
             continue
 
         try:
@@ -110,6 +112,7 @@ def insert_player_averages(averages):
     conn.commit()
     cursor.close()
     conn.close()
+
 # Main function to fetch and insert player averages
 def main():
     try:

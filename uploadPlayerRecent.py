@@ -1,15 +1,15 @@
 import psycopg2
 from psycopg2.extras import execute_values
 
-# Supabase connection details
+# Database connection details
 SUPABASE_HOST = "aws-0-us-west-1.pooler.supabase.com"
 SUPABASE_PORT = 6543
 SUPABASE_DB = "postgres"
 SUPABASE_USER = "postgres.xrstrludepuahpovxpzb"
 SUPABASE_PASSWORD = "AZ1d3Tab7my1TubG"
 
-# Connect to Supabase database
 def connect_db():
+    """Establish connection to the database."""
     try:
         return psycopg2.connect(
             host=SUPABASE_HOST,
@@ -23,110 +23,125 @@ def connect_db():
         print(f"Error connecting to database: {e}")
         raise
 
-# Fetch player stats for the last 3 weeks and calculate averages
-def fetch_and_calculate_recent_averages():
-    """Fetch player stats for the last 3 weeks and calculate averages."""
+def clear_recent_stats():
+    """Clear all data from the recent_player_stats table."""
+    query = "DELETE FROM recent_player_stats;"
     conn = connect_db()
     cursor = conn.cursor()
+    try:
+        cursor.execute(query)
+        conn.commit()
+        print("Cleared all data from recent_player_stats.")
+    except Exception as e:
+        print(f"Error clearing recent_player_stats: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
-    # Determine the most recent 3 weeks
-     # Query to calculate averages for the last 3 weeks a player participated
+def fetch_recent_stats(current_week):
+    """
+    Fetch stats for the given week and the two weeks prior.
+    
+    Args:
+        current_week (int): The current NFL week.
+    
+    Returns:
+        list: List of tuples containing recent stats data.
+    """
     query = """
-    WITH ranked_stats AS (
-        SELECT 
+        SELECT
             player_name,
             position_id,
-            team_id,
             week,
-            ROW_NUMBER() OVER (PARTITION BY player_name ORDER BY week DESC) AS week_rank
+            team_id,
+            passing_attempts,
+            completions,
+            passing_yards,
+            passing_tds,
+            interceptions,
+            rushing_attempts,
+            rushing_yards,
+            rushing_tds,
+            receptions,
+            receiving_yards,
+            receiving_tds,
+            targets
         FROM player_stats
-        WHERE snaps = 1
-    )
-    SELECT 
-        player_name,
-        position_id,
-        team_id,
-        AVG(passing_attempts) AS avg_passing_attempts,
-        AVG(completions) AS avg_completions,
-        AVG(passing_yards) AS avg_passing_yards,
-        AVG(passing_tds) AS avg_passing_tds,
-        AVG(interceptions) AS avg_interceptions,
-        AVG(rushing_attempts) AS avg_rushing_attempts,
-        AVG(rushing_yards) AS avg_rushing_yards,
-        AVG(rushing_tds) AS avg_rushing_tds,
-        AVG(receptions) AS avg_receptions,
-        AVG(receiving_yards) AS avg_receiving_yards,
-        AVG(receiving_tds) AS avg_receiving_tds,
-        AVG(snaps) AS avg_snaps
-    FROM ranked_stats
-    WHERE week_rank <= 3
-    GROUP BY player_name, position_id, team_id;
+        WHERE week IN (%s, %s, %s);
     """
-
-    cursor.execute(query)
-    raw_averages = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    # Process the data to replace None with default values
-    averages = []
-    for row in raw_averages:
-        processed_row = tuple(
-            value if value is not None else ("N/A" if isinstance(value, str) else 0)
-            for value in row
-        )
-        averages.append(processed_row)
-    
-    return averages
-
-# Insert recent player averages into a new table
-def insert_recent_player_averages(averages):
-    """Insert calculated averages into the recent_player_averages table."""
-    if not averages:
-        print("No data to insert.")
-        return
-
+    weeks = (current_week, current_week - 1, current_week - 2)
     conn = connect_db()
     cursor = conn.cursor()
+    try:
+        cursor.execute(query, weeks)
+        results = cursor.fetchall()
+        print(f"Fetched {len(results)} rows of recent stats.")
+        return results
+    except Exception as e:
+        print(f"Error fetching recent stats: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
 
-    # Clear out old data
-    cursor.execute("DELETE FROM recent_player_averages;")
+def upload_recent_stats(recent_stats):
+    """
+    Upload recent stats data to the recent_player_stats table.
+    
+    Args:
+        recent_stats (list): List of tuples containing recent stats data.
+    """
+    if not recent_stats:
+        print("No data to upload.")
+        return
 
     query = """
-    INSERT INTO recent_player_averages (
-        player_name, position_id, team_id, avg_passing_attempts, avg_completions, avg_passing_yards,
-        avg_passing_tds, avg_interceptions, avg_rushing_attempts, avg_rushing_yards,
-        avg_rushing_tds, avg_receptions, avg_receiving_yards, avg_receiving_tds, avg_snaps
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        INSERT INTO recent_player_stats (
+            player_name,
+            position_id,
+            week,
+            team_id,
+            passing_attempts,
+            completions,
+            passing_yards,
+            passing_tds,
+            interceptions,
+            rushing_attempts,
+            rushing_yards,
+            rushing_tds,
+            receptions,
+            receiving_yards,
+            receiving_tds,
+            targets
+        ) VALUES %s;
     """
-
-    for row in averages:
-        if len(row) != 15:  # Ensure the row has the correct number of elements
-            print(f"Skipping invalid row (expected 15 elements, got {len(row)}): {row}")
-            continue
-
-        try:
-            cursor.execute(query, row)
-        except psycopg2.Error as e:
-            print(f"Error inserting row for player {row[0]}: {e}")
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-# Main function to fetch and insert player averages
-def main():
+    conn = connect_db()
+    cursor = conn.cursor()
     try:
-        print("Fetching player stats for the last 3 weeks...")
-        recent_player_averages = fetch_and_calculate_recent_averages()
-
-        print("Inserting recent player averages into the database...")
-        insert_recent_player_averages(recent_player_averages)
-
-        print("Recent player averages successfully inserted/updated.")
+        execute_values(cursor, query, recent_stats)
+        conn.commit()
+        print(f"Uploaded {len(recent_stats)} rows to recent_player_stats.")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error uploading recent stats: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
-# Run the script
+def main():
+    """Main function to clear, fetch, and upload recent player stats."""
+    current_week = int(input("Enter the current NFL week (e.g., 5): "))
+    if current_week < 3:
+        print("Invalid week. Must be 3 or greater to fetch 3 weeks of data.")
+        return
+
+    # Step 1: Clear the table
+    clear_recent_stats()
+
+    # Step 2: Fetch recent stats
+    recent_stats = fetch_recent_stats(current_week)
+
+    # Step 3: Upload the new recent stats
+    upload_recent_stats(recent_stats)
+
 if __name__ == "__main__":
     main()

@@ -13,6 +13,7 @@ API_KEY = "255dc66ae2e34b158e2f27d5bda13a26"  # SportsDataIO API Key
 
 position_map = {"WR": "WR", "QB": "QB", "RB": "RB", "TE": "TE"}
 
+
 def connect_db():
     """Establish a connection to the database."""
     try:
@@ -27,6 +28,7 @@ def connect_db():
         print(f"Error connecting to the database: {e}")
         raise
 
+
 def scrape_stats(week, position):
     """Scrape stats for a given week and position."""
     url = f"https://www.cbssports.com/nfl/stats/leaders/live/{position}/{week}/"
@@ -34,7 +36,7 @@ def scrape_stats(week, position):
     if response.status_code != 200:
         print(f"Failed to fetch data for Week {week}, Position {position}")
         return []
-    
+
     soup = BeautifulSoup(response.content, "html.parser")
     rows = soup.select(".TableBase-bodyTr")
     player_data = []
@@ -43,12 +45,12 @@ def scrape_stats(week, position):
         columns = row.find_all("td")
         if len(columns) < 3:  # Skip rows with insufficient data
             continue
-        
+
         player_name = columns[0].select_one(".CellPlayerName--long a").text.strip()
         matchup = columns[1].text.strip()
         fpts = int(columns[2].text.strip()) if columns[2].text.strip().isdigit() else 0
 
-        # Initialize data structure
+        # Initialize player data structure with defaults
         player_stats = {
             "player_name": player_name,
             "position_id": position,
@@ -67,13 +69,45 @@ def scrape_stats(week, position):
             "receiving_yards": 0,
             "receiving_tds": 0,
             "targets": 0,
-            "snaps": None,
-            "team_id": None,
-            "opponent": None
+            "snaps": None,  # To be filled from API
+            "team_id": None,  # To be filled from API
+            "opponent": None  # To be filled from API
         }
+
+        # Parse stats based on position
+        if position == "QB":
+            player_stats["completions"] = int(columns[3].text.strip()) if columns[3].text.strip().isdigit() else 0
+            player_stats["passing_attempts"] = int(columns[4].text.strip()) if columns[4].text.strip().isdigit() else 0
+            player_stats["passing_yards"] = int(columns[5].text.strip()) if columns[5].text.strip().isdigit() else 0
+            player_stats["passing_tds"] = int(columns[6].text.strip()) if columns[6].text.strip().isdigit() else 0
+            player_stats["interceptions"] = int(columns[7].text.strip()) if columns[7].text.strip().isdigit() else 0
+            player_stats["rushing_attempts"] = int(columns[8].text.strip()) if columns[8].text.strip().isdigit() else 0
+            player_stats["rushing_yards"] = int(columns[9].text.strip()) if columns[9].text.strip().isdigit() else 0
+            player_stats["rushing_tds"] = int(columns[10].text.strip()) if columns[10].text.strip().isdigit() else 0
+
+        elif position == "RB":
+            player_stats["rushing_attempts"] = int(columns[3].text.strip()) if columns[3].text.strip().isdigit() else 0
+            player_stats["rushing_yards"] = int(columns[4].text.strip()) if columns[4].text.strip().isdigit() else 0
+            player_stats["rushing_tds"] = int(columns[5].text.strip()) if columns[5].text.strip().isdigit() else 0
+            player_stats["receptions"] = int(columns[6].text.strip()) if columns[6].text.strip().isdigit() else 0
+            player_stats["receiving_yards"] = int(columns[7].text.strip()) if columns[7].text.strip().isdigit() else 0
+            player_stats["targets"] = int(columns[8].text.strip()) if columns[8].text.strip().isdigit() else 0
+            player_stats["receiving_tds"] = int(columns[9].text.strip()) if columns[8].text.strip().isdigit() else 0
+
+        elif position in ["WR", "TE"]:
+            player_stats["receptions"] = int(columns[3].text.strip()) if columns[3].text.strip().isdigit() else 0
+            player_stats["receiving_yards"] = int(columns[4].text.strip()) if columns[4].text.strip().isdigit() else 0
+            player_stats["targets"] = int(columns[5].text.strip()) if columns[5].text.strip().isdigit() else 0
+            player_stats["receiving_tds"] = int(columns[6].text.strip()) if columns[6].text.strip().isdigit() else 0
+            player_stats["rushing_attempts"] = int(columns[7].text.strip()) if columns[7].text.strip().isdigit() else 0
+            player_stats["rushing_yards"] = int(columns[8].text.strip()) if columns[8].text.strip().isdigit() else 0
+            player_stats["rushing_tds"] = int(columns[9].text.strip()) if columns[9].text.strip().isdigit() else 0
+
         player_data.append(player_stats)
-    
+
     return player_data
+
+
 
 def fetch_player_stats(season, week):
     """Fetch player stats from the SportsDataIO API."""
@@ -84,23 +118,50 @@ def fetch_player_stats(season, week):
     if response.status_code != 200:
         print(f"Error fetching data: {response.status_code}, {response.text}")
         return []
-    
+
     return response.json()
 
-def update_with_api_data(player_data, api_data, team_mapping):
-    """Update player_data with snaps, team_id, and opponent from API."""
-    for player in player_data:
+
+def merge_stats(scraped_data, api_data, team_mapping):
+    """Merge API fields (`snaps`, `team_id`, `opponent`) into scraped data using API."""
+    merged_data = []
+    for player in scraped_data:
         api_player = next((p for p in api_data if p['Name'] == player['player_name']), None)
         if api_player:
+            # Update only API-specific fields
             player['snaps'] = api_player.get('Played', 0)
             player['team_id'] = team_mapping.get(api_player.get('Team'))
             player['opponent'] = api_player.get('Opponent')
-    return player_data
+        else:
+            # Attempt to infer `team_id` from matchup or position
+            print(f"Player {player['player_name']} not found in API data. Excluding from upload.")
+            continue  # Exclude players without `team_id`
+        
+        # Ensure `team_id` is not None
+        if player['team_id']:
+            merged_data.append(player)
+
+    return merged_data
+
 
 def upload_to_database(player_data):
-    """Upload scraped data to the Supabase database."""
+    """Upload merged data to the database."""
     conn = connect_db()
     cursor = conn.cursor()
+
+    # Ensure unique constraint exists
+    cursor.execute("""
+    DO $$ 
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM pg_indexes 
+            WHERE tablename = 'player_stats' AND indexname = 'unique_player_week_team'
+        ) THEN
+            ALTER TABLE player_stats ADD CONSTRAINT unique_player_week_team UNIQUE (player_name, team_id, week);
+        END IF;
+    END $$;
+    """)
 
     query = """
     INSERT INTO player_stats (
@@ -110,22 +171,9 @@ def upload_to_database(player_data):
         targets, snaps, opponent
     ) VALUES %s
     ON CONFLICT (player_name, team_id, week) DO UPDATE SET
-        matchup = EXCLUDED.matchup,
-        fpts = EXCLUDED.fpts,
-        completions = EXCLUDED.completions,
-        passing_attempts = EXCLUDED.passing_attempts,
-        passing_yards = EXCLUDED.passing_yards,
-        passing_tds = EXCLUDED.passing_tds,
-        interceptions = EXCLUDED.interceptions,
-        rushing_attempts = EXCLUDED.rushing_attempts,
-        rushing_yards = EXCLUDED.rushing_yards,
-        rushing_tds = EXCLUDED.rushing_tds,
-        receptions = EXCLUDED.receptions,
-        receiving_yards = EXCLUDED.receiving_yards,
-        receiving_tds = EXCLUDED.receiving_tds,
-        targets = EXCLUDED.targets,
-        snaps = EXCLUDED.snaps,
-        opponent = EXCLUDED.opponent;
+        snaps = COALESCE(EXCLUDED.snaps, player_stats.snaps),
+        opponent = COALESCE(EXCLUDED.opponent, player_stats.opponent),
+        team_id = COALESCE(EXCLUDED.team_id, player_stats.team_id);
     """
 
     values = [
@@ -138,10 +186,16 @@ def upload_to_database(player_data):
         for p in player_data if p['team_id']
     ]
 
-    execute_values(cursor, query, values)
-    conn.commit()
+    if values:
+        execute_values(cursor, query, values)
+        conn.commit()
+        print(f"Inserted/Updated {len(values)} rows.")
+    else:
+        print("No valid data to insert.")
+
     cursor.close()
     conn.close()
+
 
 def main():
     season = "2024REG"  # Current season
@@ -159,9 +213,14 @@ def main():
             print(f"Scraping Week {week}, Position {position}")
             scraped_data = scrape_stats(week, position_code)
             api_data = fetch_player_stats(season, week)
-            merged_data = update_with_api_data(scraped_data, api_data, team_mapping)
+            merged_data = merge_stats(scraped_data, api_data, team_mapping)
+
+            # Debugging merged data before uploading
+            print("Sample Merged Data:", merged_data[:3])
+
             upload_to_database(merged_data)
             print(f"Uploaded data for Week {week}, Position {position}")
+
 
 if __name__ == "__main__":
     main()
