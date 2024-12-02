@@ -173,6 +173,7 @@
                       rushing_attempts,
                       rushing_yards,
                       rushing_tds,
+                      targets,
                       receptions,
                       receiving_yards,
                       receiving_tds,
@@ -214,6 +215,7 @@
                   avg_rushing_attempts,
                   avg_rushing_yards,
                   avg_rushing_tds,
+                  avg_targets,
                   avg_receptions,
                   avg_receiving_yards,
                   avg_receiving_tds,
@@ -288,6 +290,7 @@
               tableHtml += `
                   <th>Week</th>
                   <th>Opponent</th>
+                  <th>Targets</th>
                   <th>Receptions</th>
                   <th>Receiving Yards</th>
                   <th>Receiving TDs</th>
@@ -304,6 +307,7 @@
                   <th>Rushing Attempts</th>
                   <th>Rushing Yards</th>
                   <th>Rushing TDs</th>
+                  <th>Targets</th>
                   <th>Receptions</th>
                   <th>Receiving Yards</th>
                   <th>Receiving TDs</th>
@@ -336,6 +340,7 @@
                       <tr>
                           <td>${stat.week}</td>
                           <td>${stat.opponent}</td>
+                          <td>${stat.targets || '0'}</td>
                           <td>${stat.receptions || '0'}</td>
                           <td>${stat.receiving_yards || '0'}</td>
                           <td>${stat.receiving_tds || '0'}</td>
@@ -353,6 +358,7 @@
                           <td>${stat.rushing_attempts || '0'}</td>
                           <td>${stat.rushing_yards || '0'}</td>
                           <td>${stat.rushing_tds || '0'}</td>
+                          <td>${stat.targets || '0'}</td>
                           <td>${stat.receptions || '0'}</td>
                           <td>${stat.receiving_yards || '0'}</td>
                           <td>${stat.receiving_tds || '0'}</td>
@@ -379,6 +385,7 @@
                           <td>-</td>
                       ` : isWR ? `
                             <td>-</td>
+                          <td>${(averages.avg_targets || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receptions || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receiving_yards || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receiving_tds || 0).toFixed(2)}</td>
@@ -391,6 +398,7 @@
                           <td>${(averages.avg_rushing_attempts || 0).toFixed(2)}</td>
                           <td>${(averages.avg_rushing_yards || 0).toFixed(2)}</td>
                           <td>${(averages.avg_rushing_tds || 0).toFixed(2)}</td>
+                          <td>${(averages.avg_targets || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receptions || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receiving_yards || 0).toFixed(2)}</td>
                           <td>${(averages.avg_receiving_tds || 0).toFixed(2)}</td>
