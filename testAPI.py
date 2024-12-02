@@ -57,57 +57,47 @@ def fetch_player_stats(season, week):
     return response.json()
 
 # Insert player stats into the database
-def insert_player_stats(player_stats, team_mapping, valid_positions):
+def insert_player_stats(player_stats, team_mapping):
     conn = connect_db()
     cursor = conn.cursor()
 
+    # Fetch existing position_ids for players
+    cursor.execute("SELECT player_name, position_id FROM player_stats;")
+    existing_positions = {row[0]: row[1] for row in cursor.fetchall()}
+
     query = """
     INSERT INTO player_stats (
-        player_name, position_id, team_id, week, passing_attempts, completions, 
-        passing_yards, passing_tds, interceptions, rushing_attempts, rushing_yards, 
-        rushing_tds, receptions, receiving_yards, receiving_tds, snaps, opponent
+        player_name, position_id, team_id, week, snaps, opponent
     ) VALUES %s
     ON CONFLICT (player_name, team_id, week) DO UPDATE SET
-        position_id = EXCLUDED.position_id,
-        passing_attempts = EXCLUDED.passing_attempts,
-        completions = EXCLUDED.completions,
-        passing_yards = EXCLUDED.passing_yards,
-        passing_tds = EXCLUDED.passing_tds,
-        interceptions = EXCLUDED.interceptions,
-        rushing_attempts = EXCLUDED.rushing_attempts,
-        rushing_yards = EXCLUDED.rushing_yards,
-        rushing_tds = EXCLUDED.rushing_tds,
-        receptions = EXCLUDED.receptions,
-        receiving_yards = EXCLUDED.receiving_yards,
-        receiving_tds = EXCLUDED.receiving_tds,
         snaps = EXCLUDED.snaps,
         opponent = EXCLUDED.opponent;
     """
 
-
     values = []
     for player in player_stats:
         team_id = team_mapping.get(player.get('Team'))
-        position_id = player.get('Position')
-        if team_id and position_id in valid_positions:
+        if team_id:
+            position_id = existing_positions.get(player.get('Name'))  # Fetch existing position_id
+            if position_id is None:
+                print(f"Warning: Missing position_id for {player.get('Name')}. Skipping this player.")
+                continue
+
             values.append((
                 player.get('Name'), position_id, team_id, player.get('Week'),
-                player.get('PassingAttempts'), player.get('PassingCompletions'), player.get('PassingYards'),
-                player.get('PassingTouchdowns'), player.get('PassingInterceptions'),
-                player.get('RushingAttempts'), player.get('RushingYards'), player.get('RushingTouchdowns'),
-                player.get('Receptions'), player.get('ReceivingYards'), player.get('ReceivingTouchdowns'),
                 player.get('Played'), player.get('Opponent')
             ))
 
     if values:
         execute_values(cursor, query, values)
         conn.commit()
-        print(f"Inserted {len(values)} rows into player_stats.")
+        print(f"Inserted or updated {len(values)} rows in player_stats.")
     else:
-        print("No valid data to insert.")
+        print("No valid data to insert or update.")
 
     cursor.close()
     conn.close()
+
 
 # Main function to fetch and insert player stats
 def main():
@@ -124,7 +114,7 @@ def main():
             player_stats = fetch_player_stats(season, week)
 
             print(f"Processing and inserting data for {len(player_stats)} players in Week {week}...")
-            insert_player_stats(player_stats, team_mapping, valid_positions)
+            insert_player_stats(player_stats, team_mapping)
 
         print("Player stats for all weeks successfully inserted into the database.")
 
