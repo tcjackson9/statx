@@ -259,7 +259,8 @@
 
       try {
           const stats = await fetchPlayerStats(playerName);
-          const averages = await fetchPlayerAverages(playerName);
+          const normalizedPlayerName = playerName.replace(/`/g, "'");
+          const averages = await fetchPlayerAverages(normalizedPlayerName);
 
           // Sort data by week
           stats.sort((a, b) => a.week - b.week);
