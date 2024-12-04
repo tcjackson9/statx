@@ -72,58 +72,55 @@
     </header>
 
     <div class="right_col" role="main" style="margin-bottom: 500px">
-      <div class="container">
-        <h1>NFL Player Projections</h1>
-        <form id="projectionForm">
-          <label for="playerName">Enter NFL Player Name (e.g., Saquon Barkley):</label>
-          <div style="position: relative;">
-            <input type="text" id="playerName" name="playerName" required autocomplete="off">
-            <div id="suggestions" class="suggestions"></div>
-          </div>
+        <div class="container">
+          <h1>NFL Player Projections</h1>
+          <form id="projectionForm">
+            <label for="playerName">Enter NFL Player Name (e.g., Saquon Barkley):</label>
+            <div style="position: relative;">
+              <input type="text" id="playerName" name="playerName" required autocomplete="off">
+              <div id="suggestions" class="suggestions"></div>
+            </div>
 
-          <label for="defenseTeam">Select Opponent Defense:</label>
-          <select id="defenseTeam" name="defenseTeam" required>
-            <option value="">-- Select Defense --</option>
-            <option value="SF">49ers</option>
-            <option value="CHI">Bears</option>
-            <option value="CIN">Bengals</option>
-            <option value="BUF">Bills</option>
-            <option value="DEN">Broncos</option>
-            <option value="CLE">Browns</option>
-            <option value="TB">Buccaneers</option>
-            <option value="ARI">Cardinals</option>
-            <option value="LAC">Chargers</option>
-            <option value="KC">Chiefs</option>
-            <option value="IND">Colts</option>
-            <option value="WAS">Commanders</option>
-            <option value="DAL">Cowboys</option>
-            <option value="MIA">Dolphins</option>
-            <option value="PHI">Eagles</option>
-            <option value="ATL">Falcons</option>
-            <option value="NYG">Giants</option>
-            <option value="JAC">Jaguars</option>
-            <option value="NYJ">Jets</option>
-            <option value="DET">Lions</option>
-            <option value="GB">Packers</option>
-            <option value="CAR">Panthers</option>
-            <option value="NE">Patriots</option>
-            <option value="LV">Raiders</option>
-            <option value="LAR">Rams</option>
-            <option value="BAL">Ravens</option>
-            <option value="NO">Saints</option>
-            <option value="SEA">Seahawks</option>
-            <option value="PIT">Steelers</option>
-            <option value="HOU">Texans</option>
-            <option value="TEN">Titans</option>
-            <option value="MIN">Vikings</option>
-          </select>
-          <button type="submit">Generate Projection</button>
-        </form>
+        <label for="defenseTeam">Select Opponent Defense:</label>
+        <select id="defenseTeam" name="defenseTeam" required>
+          <option value="">-- Select Defense --</option>
+          <option value="SF">49ers</option>
+          <option value="CHI">Bears</option>
+          <option value="CIN">Bengals</option>
+          <option value="BUF">Bills</option>
+          <option value="DEN">Broncos</option>
+          <option value="CLE">Browns</option>
+          <option value="TB">Buccaneers</option>
+          <option value="ARI">Cardinals</option>
+          <option value="LAC">Chargers</option>
+          <option value="KC">Chiefs</option>
+          <option value="IND">Colts</option>
+          <option value="WAS">Commanders</option>
+          <option value="DAL">Cowboys</option>
+          <option value="MIA">Dolphins</option>
+          <option value="PHI">Eagles</option>
+          <option value="ATL">Falcons</option>
+          <option value="NYG">Giants</option>
+          <option value="JAC">Jaguars</option>
+          <option value="NYJ">Jets</option>
+          <option value="DET">Lions</option>
+          <option value="GB">Packers</option>
+          <option value="CAR">Panthers</option>
+          <option value="NE">Patriots</option>
+          <option value="LV">Raiders</option>
+          <option value="LAR">Rams</option>
+          <option value="BAL">Ravens</option>
+          <option value="NO">Saints</option>
+          <option value="SEA">Seahawks</option>
+          <option value="PIT">Steelers</option>
+          <option value="HOU">Texans</option>
+          <option value="TEN">Titans</option>
+          <option value="MIN">Vikings</option>
+        </select>
+        <button type="submit">Generate Projection</button>
+      </form>
 
-        <div id="statsContainer">
-          <!-- The projection data will be displayed here -->
-        </div>
-      </div>
+      <div id="statsContainer"></div>
     </div>
 
     <footer>
@@ -131,220 +128,157 @@
     </footer>
 
     <script type="module">
+      // Supabase setup
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-    
-      // Supabase credentials
       const supabaseUrl = 'https://xrstrludepuahpovxpzb.supabase.co';
-      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhyc3RybHVkZXB1YWhwb3Z4cHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1NjA5OTcsImV4cCI6MjA0NzEzNjk5N30.zi3dWGxLif4__7tSOn2-r2nS1wZI_SLBUpHGMpKMznI'; // Replace with your actual key
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhyc3RybHVkZXB1YWhwb3Z4cHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1NjA5OTcsImV4cCI6MjA0NzEzNjk5N30.zi3dWGxLif4__7tSOn2-r2nS1wZI_SLBUpHGMpKMznI';
       const supabase = createClient(supabaseUrl, supabaseKey);
-    
+
       const playerNameInput = document.getElementById("playerName");
-      const defenseTeamSelect = document.getElementById("defenseTeam");
       const suggestionsBox = document.getElementById("suggestions");
       const form = document.getElementById("projectionForm");
       const statsContainer = document.getElementById("statsContainer");
-    
+
       const normalizeString = (str) => str.toLowerCase().replace(/[-.`]/g, "").trim();
     
-      // Event listener for player name input (suggestions)
-      playerNameInput.addEventListener("input", async () => {
-        const query = normalizeString(playerNameInput.value)
-          .replace(/[-`'.]/g, ""); // Normalize user input by removing -, ', `, and .
-    
-        suggestionsBox.innerHTML = ""; // Clear previous suggestions
-    
-        if (query) {
-          try {
-            const { data: players, error } = await supabase
-              .from('player_list') // Replace with your actual table name
-              .select('player_name');
-    
-            if (error) {
-              console.error('Error fetching player names:', error.message);
-              return;
-            }
-    
-            const matchingPlayers = players.filter(player =>
-              normalizeString(player.player_name).includes(query)
-            );
-    
-            matchingPlayers.forEach(player => {
-              const suggestionItem = document.createElement("div");
-              suggestionItem.className = "suggestion-item";
-              suggestionItem.textContent = player.player_name;
-              suggestionItem.addEventListener("click", () => {
-                playerNameInput.value = player.player_name;
-                suggestionsBox.innerHTML = "";
-              });
-              suggestionsBox.appendChild(suggestionItem);
-            });
-          } catch (err) {
-            console.error('Unexpected error fetching suggestions:', err.message);
+    // Event listener for player name input (suggestions)
+    playerNameInput.addEventListener("input", async () => {
+      const query = normalizeString(playerNameInput.value)
+        .replace(/[-`'.]/g, ""); // Normalize user input by removing -, ', `, and .
+  
+      suggestionsBox.innerHTML = ""; // Clear previous suggestions
+  
+      if (query) {
+        try {
+          const { data: players, error } = await supabase
+            .from('player_list') // Replace with your actual table name
+            .select('player_name');
+  
+          if (error) {
+            console.error('Error fetching player names:', error.message);
+            return;
           }
+  
+          const matchingPlayers = players.filter(player =>
+            normalizeString(player.player_name).includes(query)
+          );
+  
+          matchingPlayers.forEach(player => {
+            const suggestionItem = document.createElement("div");
+            suggestionItem.className = "suggestion-item";
+            suggestionItem.textContent = player.player_name;
+            suggestionItem.addEventListener("click", () => {
+              playerNameInput.value = player.player_name;
+              suggestionsBox.innerHTML = "";
+            });
+            suggestionsBox.appendChild(suggestionItem);
+          });
+        } catch (err) {
+          console.error('Unexpected error fetching suggestions:', err.message);
         }
-      });
-    
-      // Hide suggestions when clicking outside
-      document.addEventListener("click", (event) => {
-        if (!suggestionsBox.contains(event.target) && event.target !== playerNameInput) {
-          suggestionsBox.innerHTML = "";
-        }
-      });
-    
-      // Form submission to generate projections
+      }
+    });
+  
+    // Hide suggestions when clicking outside
+    document.addEventListener("click", (event) => {
+      if (!suggestionsBox.contains(event.target) && event.target !== playerNameInput) {
+        suggestionsBox.innerHTML = "";
+      }
+    });
+
+      // Handle form submission
       form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+        event.preventDefault();
 
-  const playerName = playerNameInput.value.replace(/`/g, "'").trim();
-  const defenseTeam = defenseTeamSelect.value;
+        const playerName = playerNameInput.value.replace(/`/g, "'").trim();
+        const defenseTeam = document.getElementById("defenseTeam").value;
 
-  if (!playerName || !defenseTeam) {
-    statsContainer.innerHTML = '<p class="error">Please select a player and a defense.</p>';
-    return;
-  }
+        if (!playerName || !defenseTeam) {
+          statsContainer.innerHTML = '<p class="error">Please enter both player and defense.</p>';
+          return;
+        }
 
-  statsContainer.innerHTML = '<p class="loading">Generating projections...</p>';
+        statsContainer.innerHTML = '<p class="loading">Generating projections...</p>';
 
-  try {
-    // Fetch player recent stats
-    const { data: recentStats, error: recentStatsError } = await supabase
-      .from("recent_player_stats")
-      .select("*")
-      .eq("player_name", playerName);
+        try {
+          // Fetch player stats and position
+          const { data: playerStats, error: playerError } = await supabase
+            .from('player_averages')
+            .select('*')
+            .eq('player_name', playerName)
+            .single();
 
-    console.log("Player recent stats:", recentStats); // Debug player recent stats
+          if (playerError || !playerStats) {
+            throw new Error(`No stats found for player "${playerName}".`);
+          }
 
-    if (recentStatsError || !recentStats || recentStats.length === 0) {
-      throw new Error(`Recent stats not found for "${playerName}".`);
-    }
+          const positionId = playerStats.position_id;
 
-    // Fetch defense stats
-    const defenseTable = recentStats[0].position_id === "QB" ? "defense_averages_qb" : "defense_averages";
-    const { data: defenseStats, error: defenseError } = await supabase
-      .from(defenseTable)
-      .select("*")
-      .eq("team_id", defenseTeam);
+            // Determine defense table based on position
+            const defenseTable =
+            positionId === "QB" ? "defense_averages_qb" : "defense_averages";
+            const leagueTable =
+            positionId === "QB" ? "all_defense_averages_qb" : "all_defense_averages";
 
-    console.log("Defense stats:", defenseStats); // Debug defense stats
+            // Fetch specific defense stats
+            let query = supabase.from(defenseTable).select('*').eq('team_id', defenseTeam);
 
-    if (defenseError || !defenseStats || defenseStats.length === 0) {
-      throw new Error(`No defensive stats found for "${defenseTeam}".`);
-    }
+            if (positionId !== "QB") {
+            query = query.eq('position_id', positionId);
+            }
 
-    const specificDefense = defenseStats[0];
+            const { data: defenseStats, error: defenseError } = await query.single();
 
-    // Fetch league-wide defense averages
-    let leagueDefense;
-    try {
-      const allDefenseTable = recentStats[0].position_id === "QB" ? "all_defense_averages_qb" : "all_defense_averages";
-      let query1 = supabase.from(allDefenseTable).select("*");
+            if (defenseError || !defenseStats) {
+            throw new Error(`No stats found for defense team "${defenseTeam}".`);
+            }
 
-      if (recentStats[0].position_id !== "QB") {
-        query1 = query1.eq("position_id", recentStats[0].position_id); // Add position_id filter for non-QBs
-      }
+            // Fetch league-wide averages
+            let leagueQuery = supabase.from(leagueTable).select('*');
 
-      const { data: leagueDefenseData, error: leagueError } = await query1.single();
+            if (positionId !== "QB") {
+            leagueQuery = leagueQuery.eq('position_id', positionId);
+            }
 
-      console.log("League-wide defense stats:", leagueDefenseData); // Debug league-wide defense stats
+            const { data: leagueStats, error: leagueError } = await leagueQuery.single();
 
-      if (leagueError || !leagueDefenseData) {
-        throw new Error(`No league-wide defense stats found for position: ${recentStats[0].position_id}.`);
-      }
+            if (leagueError || !leagueStats) {
+            throw new Error("League-wide averages not found.");
+            }
 
-      leagueDefense = leagueDefenseData;
-    } catch (leagueError) {
-      console.error("Error fetching league-wide defense stats:", leagueError.message);
-      statsContainer.innerHTML = `<p class="error">Error fetching league-wide defense stats: ${leagueError.message}</p>`;
-      return;
-    }
+            // Calculate projections (handle QB-specific rushing stats)
+            const projection = {};
+            for (const stat in playerStats) {
+            if (stat.startsWith('avg_')) {
+                const playerAvg = playerStats[stat];
 
-// Calculate projections
-const projection = {};
+                // Handle QB-specific rushing stats mapping
+                const defenseStatKey =
+                positionId === "QB" && stat.startsWith('avg_rushing_')
+                    ? `avg_qb_${stat.slice(4)}` // Map "avg_rushing_xxx" to "avg_qb_rushing_xxx"
+                    : stat;
 
-// Adjust weights
-const recentStatsWeight = 0.9; // Increase emphasis on recent performance
-const defenseStatsWeight = 0.1; // Reduce emphasis on specific defense stats
+                const defenseAvg = defenseStats[defenseStatKey];
+                const leagueAvg = leagueStats[defenseStatKey];
 
-// Dampening factor for defensive adjustments
-const dampeningFactor = 0.2; // Limit defense ratio effects to ±20%
+                if (playerAvg !== undefined && defenseAvg !== undefined && leagueAvg !== undefined) {
+                projection[stat] = playerAvg * (defenseAvg / leagueAvg);
+                }
+            }
+            }
 
-// Initialize aggregated stats for normalization
-const aggregatedStats = {};
-recentStats.forEach((stat) => {
-  for (const key in stat) {
-    if (
-      key !== "player_name" &&
-      key !== "team_id" &&
-      key !== "week" &&
-      key !== "position_id"
-    ) {
-      if (!aggregatedStats[key]) {
-        aggregatedStats[key] = { sum: 0, count: 0 };
-      }
-      aggregatedStats[key].sum += stat[key];
-      aggregatedStats[key].count += 1;
-    }
-  }
-});
+          // Render projections
+          let tableHtml = '<table><thead><tr><th>Stat</th><th>Projection</th></tr></thead><tbody>';
+          for (const [stat, value] of Object.entries(projection)) {
+            tableHtml += `<tr><td>${stat.replace('avg_', '').toUpperCase()}</td><td>${value.toFixed(2)}</td></tr>`;
+          }
+          tableHtml += '</tbody></table>';
+          statsContainer.innerHTML = tableHtml;
 
-// Calculate projections based on averages
-for (const key in aggregatedStats) {
-  const avgRecentStat = aggregatedStats[key].sum / aggregatedStats[key].count;
-  const specificStat = specificDefense[`avg_${key}`];
-  const leagueStat = leagueDefense[`avg_${key}`];
-
-  if (specificStat !== undefined && leagueStat !== undefined && leagueStat !== 0) {
-    // Calculate defensive ratio with dampening
-    let ratio = specificStat / leagueStat;
-    ratio = Math.max(1 - dampeningFactor, Math.min(1 + dampeningFactor, ratio));
-
-    // Initialize projection if not already set
-    if (!projection[key]) {
-      projection[key] = 0;
-    }
-
-    // Adjust projection: emphasize recent stats and slightly adjust for defense
-    projection[key] =
-      avgRecentStat * recentStatsWeight +
-      avgRecentStat * defenseStatsWeight * ratio;
-  }
-}
-
-// Ensure projection respects recent trends more heavily
-projection["rushing_attempts"] = aggregatedStats["rushing_attempts"].sum / aggregatedStats["rushing_attempts"].count;
-console.log("Adjusted rushing attempts projection:", projection["rushing_attempts"]);
-
-console.log("Projection object before filtering:", projection);
-
-// Filter projections based on position
-const positionStats = {
-  QB: ["passing_attempts", "completions", "passing_yards", "passing_tds", "interceptions", "rushing_attempts", "rushing_yards", "rushing_tds"],
-  WR: ["receptions", "receiving_yards", "receiving_tds"],
-  TE: ["receptions", "receiving_yards", "receiving_tds"],
-  RB: ["rushing_attempts", "rushing_yards", "rushing_tds", "receptions", "receiving_yards", "receiving_tds"],
-};
-
-const allowedStats = positionStats[recentStats[0].position_id] || [];
-const filteredProjection = Object.fromEntries(
-  Object.entries(projection).filter(([key]) => allowedStats.includes(key))
-);
-
-console.log("Filtered projection:", filteredProjection);
-
-// Display projections
-let tableHtml = '<table><thead><tr><th>Stat</th><th>Projection</th></tr></thead><tbody>';
-for (const [stat, value] of Object.entries(filteredProjection)) {
-  tableHtml += `<tr><td>${stat.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())}</td><td>${value.toFixed(2)}</td></tr>`;
-}
-tableHtml += "</tbody></table>";
-
-statsContainer.innerHTML = tableHtml;
-
-  } catch (error) {
-    statsContainer.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-  }
-});
+        } catch (error) {
+          statsContainer.innerHTML = `<p class="error">${error.message}</p>`;
+        }
+      });
     </script>
-    
   </body>
 </html>

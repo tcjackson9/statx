@@ -7,7 +7,7 @@ from supabase import create_client
 
 # Supabase credentials
 SUPABASE_URL = "https://xrstrludepuahpovxpzb.supabase.co"
-SUPABASE_KEY = "your_supabase_key"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhyc3RybHVkZXB1YWhwb3Z4cHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1NjA5OTcsImV4cCI6MjA0NzEzNjk5N30.zi3dWGxLif4__7tSOn2-r2nS1wZI_SLBUpHGMpKMznI"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
@@ -91,6 +91,9 @@ def generate_projections():
 
     defense_stats = defense_stats["data"][0]
 
+    print("Defensive Stats fetched:", defense_stats)
+    print("Player Averages fetched:", player_avg)
+
     # Regression-based projections
     regression_predictions = predict_next_game_stats(player_name)
 
@@ -100,6 +103,7 @@ def generate_projections():
         defense_adjustment = defense_stats.get(f"avg_{stat}")
         league_average = supabase.table("all_defense_averages").select(f"avg_{stat}").execute().get("data", [{}])[0].get(f"avg_{stat}")
         if defense_adjustment and league_average:
+            print(True)
             projections[stat] = value * (defense_adjustment / league_average)
         else:
             projections[stat] = value
