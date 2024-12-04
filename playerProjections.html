@@ -201,18 +201,46 @@
         statsContainer.innerHTML = '<p class="loading">Generating projections...</p>';
 
         try {
-          // Fetch player stats and position
-          const { data: playerStats, error: playerError } = await supabase
-            .from('player_averages')
+          // Fetch weekly player stats
+          const { data: weeklyStats, error: weeklyError } = await supabase
+            .from('player_stats')
             .select('*')
-            .eq('player_name', playerName)
-            .single();
+            .eq('player_name', playerName);
 
-          if (playerError || !playerStats) {
-            throw new Error(`No stats found for player "${playerName}".`);
+          if (weeklyError || !weeklyStats || weeklyStats.length === 0) {
+            throw new Error(`No weekly stats found for player "${playerName}".`);
           }
 
-          const positionId = playerStats.position_id;
+          weeklyStats.sort((a, b) => a.week - b.week);
+
+          // Initialize weights and total weight for normalization
+          const weights = weeklyStats.map((_, index) => index + 1); // Increasing weight for recent weeks
+          const totalWeight = weeklyStats.reduce(
+            (sum, week, index) => (week.snaps > 0 ? sum + weights[index] : sum),
+            0
+          );
+
+          const weightedAverages = {};
+
+          // Calculate weighted averages for all stats dynamically, excluding weeks with snaps = 0
+          weeklyStats.forEach((week, index) => {
+            if (week.snaps > 0) { // Only include weeks where snaps > 0
+              for (const stat in week) {
+                if (stat !== 'player_name' && stat !== 'position_id' && stat !== 'week' && stat !== 'snaps') {
+                  if (!weightedAverages[stat]) weightedAverages[stat] = 0;
+                  weightedAverages[stat] += week[stat] * weights[index];
+                  console.log(`Week ${week.week}: Adding ${week[stat]} * ${weights[index]} = ${week[stat] * weights[index]} to ${stat}`);
+                }
+              }
+            }
+          });
+
+          // Normalize the weighted averages
+          for (const stat in weightedAverages) {
+            weightedAverages[stat] /= totalWeight;
+          }
+
+          const positionId = weeklyStats[0].position_id;
 
             // Determine defense table based on position
             const defenseTable =
@@ -246,25 +274,32 @@
             throw new Error("League-wide averages not found.");
             }
 
+            // Adjust the weighted impact of player averages and defense
+            const playerWeight = 0.7; // 70% weight for weighted averages
+            const defenseWeight = 0.3; // 30% weight for defensive impact
+
             // Calculate projections (handle QB-specific rushing stats)
             const projection = {};
-            for (const stat in playerStats) {
-            if (stat.startsWith('avg_')) {
-                const playerAvg = playerStats[stat];
+            for (const stat in weightedAverages) {
+              const playerAvg = weightedAverages[stat];
+              // Handle QB-specific rushing stats mapping
+              const defenseStatKey =
+              positionId === "QB" && stat.startsWith('avg_rushing_')
+                  ? `avg_qb_${stat.slice(4)}` // Map "avg_rushing_xxx" to "avg_qb_rushing_xxx"
+                  : `avg_${stat}`;
 
-                // Handle QB-specific rushing stats mapping
-                const defenseStatKey =
-                positionId === "QB" && stat.startsWith('avg_rushing_')
-                    ? `avg_qb_${stat.slice(4)}` // Map "avg_rushing_xxx" to "avg_qb_rushing_xxx"
-                    : stat;
-
-                const defenseAvg = defenseStats[defenseStatKey];
-                const leagueAvg = leagueStats[defenseStatKey];
-
-                if (playerAvg !== undefined && defenseAvg !== undefined && leagueAvg !== undefined) {
-                projection[stat] = playerAvg * (defenseAvg / leagueAvg);
+              const defenseAvg = defenseStats[defenseStatKey];
+              const leagueAvg = leagueStats[defenseStatKey];
+              if (
+                  playerAvg !== undefined &&
+                  defenseAvg !== undefined &&
+                  leagueAvg !== undefined
+                ) {
+                  // Calculate defensive adjustment
+                  const defenseImpact = playerAvg * (defenseAvg / leagueAvg);
+                  // Blend weighted average and defensive impact
+                  projection[stat] = playerAvg * playerWeight + defenseImpact * defenseWeight;
                 }
-            }
             }
 
           // Render projections
