@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Welcome to Stats X - NFL Matchup Analysis" />
+    <title>StatsX Best Matchups</title>
+    <link href="./style.css" rel="stylesheet" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f6f8;
+        color: #2a3f54;
+      }
+      header {
+        background-color: #2a3f54;
+        padding: 15px;
+        text-align: center;
+        color: white;
+      }
+      header .logo h1 {
+        margin: 0;
+        font-size: 1.8em;
+      }
+      nav a {
+        text-decoration: none;
+        color: white;
+        margin: 0 10px;
+        font-size: 1em;
+      }
+      nav a:hover {
+        text-decoration: underline;
+      }
+      .Title {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .Title h1 {
+        color: #2a3f54;
+        font-size: 2em;
+      }
+      #bestMatchups {
+        max-width: 1000px;
+        margin: 30px auto;
+        margin-top:-200px;
+        text-align: center;
+      }
+      #matchupResults {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .matchup-card {
+        background-color: #ffffff;
+        border: 2px solid #2a3f54;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .matchup-card h3 {
+        margin: 0;
+        color: white;
+        background-color: #2a3f54;
+        padding: 10px;
+        border-radius: 8px 8px 0 0;
+      }
+      .matchup-card p {
+        font-size: 1.1em;
+        margin: 10px 0;
+      }
+      .button {
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #2a3f54;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+      }
+      .button:hover {
+        background-color: #1e2d3b;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">
+        <h1>Stats X</h1>
+      </div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="defense.html">Defense v.s. Position</a>
+        <a href="playerStats.html">Player Stats</a>
+        <a href="playerProjections.html">Player Projections</a>
+      </nav>
+    </header>
+
+    <div class="Title" style="margin-bottom: -100px;">
+      <h1>Welcome to StatsX!</h1>
+      <p>Your go-to destination for NFL statistical analysis.</p>
+    </div>
+
+    <div id="bestMatchups">
+      <h2 style="color:#2a3f54">Best Matchups This Week</h2>
+      <button id="fetchMatchupsButton" class="button">Show Best Matchups</button>
+      <div id="matchupResults"></div>
+    </div>
+
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+      const supabaseUrl = 'https://xrstrludepuahpovxpzb.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhyc3RybHVkZXB1YWhwb3Z4cHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE1NjA5OTcsImV4cCI6MjA0NzEzNjk5N30.zi3dWGxLif4__7tSOn2-r2nS1wZI_SLBUpHGMpKMznI';
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      const fetchMatchupsButton = document.getElementById("fetchMatchupsButton");
+      const matchupResults = document.getElementById("matchupResults");
+
+      fetchMatchupsButton.addEventListener("click", async () => {
+        try {
+          matchupResults.innerHTML = '<p>Loading matchups...</p>';
+
+          const positionQueries = {
+            QB: {
+              table: 'defense_averages_qb',
+              stats: ['avg_passing_yards', 'avg_qb_rushing_yards'],
+              labels: ['Passing Yards', 'Rushing Yards'],
+            },
+            WR: {
+              table: 'defense_averages',
+              stats: ['avg_receiving_yards', 'avg_receptions'],
+              labels: ['Receiving Yards (WR)', 'Receptions (WR)'],
+            },
+            RB: {
+              table: 'defense_averages',
+              stats: ['avg_rushing_yards', 'avg_receiving_yards'],
+              labels: ['Rushing Yards (RB)', 'Receiving Yards (RB)'],
+            },
+            TE: {
+              table: 'defense_averages',
+              stats: ['avg_receiving_yards', 'avg_receptions'],
+              labels: ['Receiving Yards (TE)', 'Receptions (TE)'],
+            },
+          };
+
+          matchupResults.innerHTML = '';
+
+          for (const position in positionQueries) {
+            const { table, stats, labels } = positionQueries[position];
+            let matchupContent = '';
+
+            for (let i = 0; i < stats.length; i++) {
+              const stat = stats[i];
+              const label = labels[i];
+
+              const { data, error } = await supabase
+                .from(table)
+                .select(`team_id, ${stat}`)
+                .order(stat, { ascending: false })
+                .limit(1);
+
+              if (error || !data || data.length === 0) {
+                console.error(`Error fetching data for ${position} (${stat}):`, error?.message || 'No data');
+                matchupContent += `<p>Error loading ${label}</p>`;
+                continue;
+              }
+
+              const team = data[0].team_id;
+              const value = data[0][stat].toFixed(1);
+
+              matchupContent += `<p>${label}: <strong>${team}</strong> (${value} ${label.includes('Receptions') ? 'rec/game' : 'yds/game'})</p>`;
+            }
+
+            matchupResults.innerHTML += `
+              <div class="matchup-card">
+                <h3>${position}</h3>
+                ${matchupContent}
+              </div>`;
+          }
+        } catch (err) {
+          console.error("Error fetching matchups:", err.message);
+          matchupResults.innerHTML = `<p>Error loading matchups. Please try again later.</p>`;
+        }
+      });
+    </script>
+  </body>
+</html>
