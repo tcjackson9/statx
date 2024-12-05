@@ -1,25 +1,37 @@
 import React, { useState } from "react";
-import supabase from "../supabaseClient";
+import supabase from "./supabaseClient";
 import { Link } from "react-router-dom";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
+import { BarChart, Bar, CartesianGrid, XAxis, Tooltip } from "recharts";
+import {
+  Typography,
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Autocomplete,
+  Card,
+  CardContent,
+} from "@mui/material";
+import "./header.css";
 
-const PlayerProjections = () => {
+const PlayerStats = () => {
   const [playerName, setPlayerName] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [stats, setStats] = useState([]);
-  const [averages, setAverages] = useState(null);
-  const [position, setPosition] = useState(""); // Track player's position
+  const [chartData, setChartData] = useState([]);
+  const [averages, setAverages] = useState({});
+  const [last3Averages, setLast3Averages] = useState({});
+  const [position, setPosition] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const normalizeString = (str) =>
-    str.toLowerCase().replace(/[-.`']/g, "").trim();
+  const normalizeString = (str) => str.toLowerCase().replace(/[-.`']/g, "").trim();
 
   const fetchSuggestions = async (query) => {
     if (!query) {
@@ -28,14 +40,7 @@ const PlayerProjections = () => {
     }
 
     try {
-      const { data: players, error } = await supabase
-        .from("player_list")
-        .select("player_name");
-
-      if (error) {
-        console.error("Error fetching suggestions:", error.message);
-        return;
-      }
+      const { data: players } = await supabase.from("player_list").select("player_name");
 
       const normalizedQuery = normalizeString(query);
       const matchingPlayers = players.filter((player) =>
@@ -44,7 +49,7 @@ const PlayerProjections = () => {
 
       setSuggestions(matchingPlayers.map((p) => p.player_name));
     } catch (err) {
-      console.error("Unexpected error fetching suggestions:", err.message);
+      console.error("Error fetching suggestions:", err.message);
     }
   };
 
@@ -55,33 +60,57 @@ const PlayerProjections = () => {
     try {
       const normalizedPlayerName = normalizeString(playerName);
 
-      // Fetch player stats
-      const { data: weeklyStats, error: statsError } = await supabase
+      const { data: weeklyStats } = await supabase
         .from("player_stats")
         .select("*")
         .ilike("player_name", `%${normalizedPlayerName}%`);
 
-      if (statsError || !weeklyStats || weeklyStats.length === 0) {
-        throw new Error(`No stats found for player "${playerName}".`);
+      if (!weeklyStats || weeklyStats.length === 0) {
+        throw new Error("No data available for the selected player.");
       }
-
-      // Fetch player averages
-      const { data: averagesData, error: averagesError } = await supabase
-        .from("player_averages")
-        .select("*")
-        .ilike("player_name", `%${normalizedPlayerName}%`);
-
-      if (averagesError) {
-        throw new Error("Failed to fetch player averages.");
-      }
-
-      // Set position dynamically from stats data
-      const playerPosition = weeklyStats[0]?.position_id || "";
-      setPosition(playerPosition);
 
       const sortedStats = weeklyStats.sort((a, b) => a.week - b.week);
       setStats(sortedStats);
-      setAverages(averagesData[0] || null);
+      setPosition(sortedStats[0]?.position_id || "");
+
+      const totalStats = sortedStats.reduce((totals, stat) => {
+        Object.keys(stat).forEach((key) => {
+          if (typeof stat[key] === "number") {
+            totals[key] = (totals[key] || 0) + stat[key];
+          }
+        });
+        return totals;
+      }, {});
+
+      const averages = {};
+      Object.keys(totalStats).forEach((key) => {
+        averages[key] = (totalStats[key] / sortedStats.length).toFixed(1);
+      });
+      setAverages(averages);
+
+      const last3Weeks = sortedStats.slice(-3);
+      const last3Stats = last3Weeks.reduce((totals, stat) => {
+        Object.keys(stat).forEach((key) => {
+          if (typeof stat[key] === "number") {
+            totals[key] = (totals[key] || 0) + stat[key];
+          }
+        });
+        return totals;
+      }, {});
+
+      const last3Averages = {};
+      Object.keys(last3Stats).forEach((key) => {
+        last3Averages[key] = (last3Stats[key] / last3Weeks.length).toFixed(1);
+      });
+      setLast3Averages(last3Averages);
+
+      const barChartData = sortedStats.map((stat) => ({
+        week: `Week ${stat.week}`,
+        rushing_attempts: stat.rushing_attempts || 0,
+        rushing_yards: stat.rushing_yards || 0,
+      }));
+
+      setChartData(barChartData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -94,7 +123,6 @@ const PlayerProjections = () => {
     fetchPlayerStats();
   };
 
-  // Define columns dynamically based on position
   const getColumns = () => {
     if (position === "QB") {
       return [
@@ -132,123 +160,147 @@ const PlayerProjections = () => {
   };
 
   return (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        textAlign: "center",
+      }}
+    >
       <header>
-        <div className="logo">
-          <h1>Stats X</h1>
-        </div>
+        <Typography variant="h4">Stats X</Typography>
         <nav>
-          <Link to="/">Home</Link>
-          <Link to="/defense">Defense v.s. Position</Link>
-          <Link to="/player-stats">Player Stats</Link>
-          <Link to="/player-projections">Player Projections</Link>
+          <div className="nav-links">
+            <Link to="/">Home</Link>
+            <span>|</span>
+            <Link to="/defense">Defense v.s. Position</Link>
+            <span>|</span>
+            <Link to="/player-stats">Player Stats</Link>
+            <span>|</span>
+            <Link to="/player-projections">Player Projections</Link>
+          </div>
         </nav>
       </header>
 
-      <main className="right_col" role="main" style={{ marginBottom: "500px" }}>
-        <div className="container">
-          <h1>Player Stats</h1>
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="playerName">
-              Enter NFL Player Name: (e.g. Saquon Barkley)
-            </label>
-            <div style={{ position: "relative" }}>
-              <input
-                type="text"
-                id="playerName"
-                value={playerName}
-                onChange={(e) => {
-                  setPlayerName(e.target.value);
-                  fetchSuggestions(e.target.value);
-                }}
-                required
-                autoComplete="off"
-              />
-              <div className="suggestions">
-                {suggestions.map((name, index) => (
-                  <div
-                    key={index}
-                    className="suggestion-item"
-                    onClick={() => {
-                      setPlayerName(name);
-                      setSuggestions([]);
-                    }}
-                  >
-                    {name}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <button type="submit">Show Stats</button>
-          </form>
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 2,
+        }}
+      >
+        <Typography variant="h5">Player Stats</Typography>
+        <Typography variant="body1" gutterBottom>
+          Enter a player's name to view their stats and projections.
+        </Typography>
 
-          {loading && <p className="loading">Loading stats...</p>}
-          {error && <p className="error">{error}</p>}
+        <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          maxWidth: 400, 
+          margin: "0 auto",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <Autocomplete
+          freeSolo
+          options={suggestions}
+          onInputChange={(event, value) => {
+            setPlayerName(value);
+            fetchSuggestions(value);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search Player"
+              fullWidth
+              sx={{
+                width: "400px", // Set the width
+              }}
+            />
+          )}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          sx={{
+            width: "400px", // Set the width
+          }}
+        >
+          Get Stats
+        </Button>
+      </Box>
 
-          {/* Material-UI Table */}
-          {stats.length > 0 && (
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="player stats table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Week</TableCell>
-                    <TableCell>Opponent</TableCell>
+
+        {loading && <Typography>Loading stats...</Typography>}
+        {error && <Typography color="error">{error}</Typography>}
+
+        {chartData.length > 0 && (
+          <Box sx={{ marginTop: 4 }}>
+            <Typography variant="h6">Player Rushing Stats</Typography>
+            <BarChart width={600} height={300} data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <Tooltip />
+              <Bar dataKey="rushing_attempts" fill="#8884d8" />
+              <Bar dataKey="rushing_yards" fill="#82ca9d" />
+            </BarChart>
+          </Box>
+        )}
+
+        {stats.length > 0 && (
+          <TableContainer component={Paper} sx={{ marginTop: 4 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Week</TableCell>
+                  {getColumns().map((col) => (
+                    <TableCell key={col.key}>{col.label}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {stats.map((row, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{row.week}</TableCell>
                     {getColumns().map((col) => (
-                      <TableCell key={col.key} align="right">
-                        {col.label}
-                      </TableCell>
+                      <TableCell key={col.key}>{row[col.key]}</TableCell>
                     ))}
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {stats.map((row, index) => (
-                    <TableRow
-                      key={index}
-                      sx={{
-                        "&:last-child td, &:last-child th": { border: 0 },
-                      }}
-                    >
-                      <TableCell component="th" scope="row">
-                        Week {row.week}
-                      </TableCell>
-                      <TableCell>{row.opponent}</TableCell>
-                      {getColumns().map((col) => (
-                        <TableCell key={col.key} align="right">
-                          {row[col.key] || 0}
-                        </TableCell>
-                      ))}
-                    </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell>Last 3 Averages</TableCell>
+                  {getColumns().map((col) => (
+                    <TableCell key={col.key}>{last3Averages[col.key]}</TableCell>
                   ))}
-                  {averages && (
-                    <TableRow
-                      sx={{
-                        backgroundColor: "#f1f1f1",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      <TableCell>Averages</TableCell>
-                      <TableCell>-</TableCell>
-                      {getColumns().map((col) => (
-                        <TableCell key={col.key} align="right">
-                          {averages[`avg_${col.key}`]
-                            ? averages[`avg_${col.key}`].toFixed(1)
-                            : "0.0"}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </div>
-      </main>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Averages</TableCell>
+                  {getColumns().map((col) => (
+                    <TableCell key={col.key}>{averages[col.key]}</TableCell>
+                  ))}
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Box>
 
       <footer>
-        <p>&copy; 2024 Stats X. All rights reserved.</p>
+        <Box sx={{ backgroundColor: "#2a3f54", color: "#fff", textAlign: "center", padding: 2 }}>
+          <Typography>&copy; 2024 Stats X. All rights reserved.</Typography>
+        </Box>
       </footer>
-    </div>
+    </Box>
   );
 };
 
-export default PlayerProjections;
+export default PlayerStats;

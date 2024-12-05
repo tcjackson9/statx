@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
-import PlayerProjections from "./components/PlayerStats";
+import PlayerStats from "./components/PlayerStats";
+import PlayerProjections from "./components/playerProjections"; // Import the new component
 
 function App() {
   return (
@@ -10,7 +11,10 @@ function App() {
         {/* Define the homepage */}
         <Route path="/" element={<Home />} />
 
-        {/* Define the subpage */}
+        {/* Define the player stats page */}
+        <Route path="/player-stats" element={<PlayerStats />} />
+
+        {/* Define the player props checker page */}
         <Route path="/player-projections" element={<PlayerProjections />} />
       </Routes>
     </Router>

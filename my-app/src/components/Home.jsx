@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import supabase from "../supabaseClient";
-import "./Home.css";
+import supabase from "./supabaseClient";
 import { Link } from "react-router-dom";
-
-
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import "./header.css"; // Import the reusable CSS
 
 const Home = () => {
   const [matchupResults, setMatchupResults] = useState([]);
@@ -77,54 +80,115 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        textAlign: "center",
+      }}
+    >
+      {/* Header */}
       <header>
-        <div className="logo">
-          <h1>Stats X</h1>
-        </div>
+        <Typography variant="h4">Stats X</Typography>
         <nav>
-          <Link to="/">Home</Link>
-          <Link to="/player-projections">Player Stats</Link>
+          <div className="nav-links">
+            <Link to="/">Home</Link>
+            <span>|</span>
+            <Link to="/defense">Defense v.s. Position</Link>
+            <span>|</span>
+            <Link to="/player-stats">Player Stats</Link>
+            <span>|</span>
+            <Link to="/player-projections">Player Projections</Link>
+          </div>
         </nav>
       </header>
 
-      <div className="Title">
-        <h1>Welcome to StatsX!</h1>
-        <p>Your go-to destination for NFL statistical analysis.</p>
-      </div>
+      {/* Main Content */}
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: 2,
+        }}
+      >
+        <Typography variant="h5" gutterBottom>
+          Welcome to StatsX!
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Your go-to destination for NFL statistical analysis.
+        </Typography>
 
-      <div id="bestMatchups">
-        <h2>Best Matchups This Week</h2>
-        <button onClick={fetchMatchups} className="button">
-          Show Best Matchups
-        </button>
-        {loading && <p>Loading matchups...</p>}
-        {error && <p className="error">{error}</p>}
-        <div id="matchupResults">
-          {matchupResults.map((matchup, index) => (
-            <div key={index} className="matchup-card">
-              <h3>{matchup.position}</h3>
-              {matchup.results.map((result, idx) => (
-                <p key={idx}>
-                  {result.label}:{" "}
-                  {result.error ? (
-                    <span className="error">{result.error}</span>
-                  ) : (
-                    <strong>
-                      {result.team} ({result.value}{" "}
-                      {result.label.includes("Receptions")
-                        ? "rec/game"
-                        : "yds/game"}
-                      )
-                    </strong>
-                  )}
-                </p>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+        <Box sx={{ marginTop: 4 }}>
+          <Typography variant="h6">Best Matchups This Week</Typography>
+          <Button
+            onClick={fetchMatchups}
+            variant="contained"
+            color="primary"
+            sx={{ marginTop: 2 }}
+          >
+            Show Best Matchups
+          </Button>
+
+          {loading && <Typography sx={{ marginTop: 2 }}>Loading matchups...</Typography>}
+          {error && <Typography sx={{ color: "red", marginTop: 2 }}>{error}</Typography>}
+
+          <Box sx={{ marginTop: 4, display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+            {matchupResults.map((matchup, index) => (
+              <Card
+                key={index}
+                sx={{
+                  width: 300,
+                  margin: 2,
+                  padding: 2,
+                  boxShadow: 3,
+                  textAlign: "center",
+                }}
+              >
+                <CardContent>
+                  <Typography variant="h6">{matchup.position}</Typography>
+                  {matchup.results.map((result, idx) => (
+                    <Typography key={idx} sx={{ marginTop: 1 }}>
+                      {result.label}:{" "}
+                      {result.error ? (
+                        <span style={{ color: "red" }}>{result.error}</span>
+                      ) : (
+                        <strong>
+                          {result.team} ({result.value}{" "}
+                          {result.label.includes("Receptions")
+                            ? "rec/game"
+                            : "yds/game"}
+                          )
+                        </strong>
+                      )}
+                    </Typography>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Footer */}
+      <footer>
+        <Box
+          sx={{
+            backgroundColor: "#2a3f54",
+            color: "#fff",
+            textAlign: "center",
+            padding: 2,
+            marginTop: "auto",
+          }}
+        >
+          <Typography variant="body2">&copy; 2024 Stats X. All rights reserved.</Typography>
+        </Box>
+      </footer>
+    </Box>
   );
 };
 
