@@ -19,6 +19,7 @@ import {
   CardContent,
 } from "@mui/material";
 import "./header.css";
+import "./Home.css";
 
 const PlayerStats = () => {
   const [playerName, setPlayerName] = useState("");
@@ -166,6 +167,7 @@ const PlayerStats = () => {
         flexDirection: "column",
         minHeight: "100vh",
         textAlign: "center",
+        padding: { xs: 2, sm: 3, md: 4 }, // Adjust padding based on screen size
       }}
     >
       <header>
@@ -190,6 +192,7 @@ const PlayerStats = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          padding: { xs: 2, sm: 3 }, // Responsive padding for form
           padding: 2,
         }}
       >
@@ -227,14 +230,7 @@ const PlayerStats = () => {
             />
           )}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          sx={{
-            width: "400px", // Set the width
-          }}
-        >
+        <Button variant="contained" color="primary" type="submit">
           Get Stats
         </Button>
       </Box>
