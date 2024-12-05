@@ -105,13 +105,32 @@ const PlayerStats = () => {
       });
       setLast3Averages(last3Averages);
 
-      const barChartData = sortedStats.map((stat) => ({
+      if (sortedStats[0].position_id === "QB") {
+        const qbChartData = sortedStats.map((stat) => ({
+          week: `Week ${stat.week}`,
+          completions: stat.completions || 0,
+          passing_yards: stat.passing_yards || 0,
+        }));
+        setChartData(qbChartData);
+      }
+
+      if (sortedStats[0].position_id === "RB") {
+      const rbChartData = sortedStats.map((stat) => ({
         week: `Week ${stat.week}`,
         rushing_attempts: stat.rushing_attempts || 0,
         rushing_yards: stat.rushing_yards || 0,
       }));
+      setChartData(rbChartData);
+    }
 
-      setChartData(barChartData);
+      if (sortedStats[0].position_id === "WR" || sortedStats[0].position_id === "TE") {
+      const wrChartData = sortedStats.map((stat) => ({
+        week: `Week ${stat.week}`,
+        receptions: stat.receptions || 0,
+        receiving_yards: stat.receiving_yards || 0,
+      }));
+      setChartData(wrChartData);
+    }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -241,11 +260,23 @@ const PlayerStats = () => {
         </Button>
       </Box>
 
-
         {loading && <Typography>Loading stats...</Typography>}
         {error && <Typography color="error">{error}</Typography>}
 
-        {chartData.length > 0 && (
+
+        {position === "QB" && chartData.length > 0 && (
+          <Box sx={{ marginTop: 4 }}>
+            <Typography variant="h6">Player Passing Stats</Typography>
+            <BarChart width={600} height={300} data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <Tooltip />
+              <Bar dataKey="completions" fill="#8884d8" />
+              <Bar dataKey="passing_yards" fill="#82ca9d" />
+            </BarChart>
+          </Box>
+        )}
+        {position === "RB" && chartData.length > 0 && (
           <Box sx={{ marginTop: 4 }}>
             <Typography variant="h6">Player Rushing Stats</Typography>
             <BarChart width={600} height={300} data={chartData}>
@@ -254,6 +285,18 @@ const PlayerStats = () => {
               <Tooltip />
               <Bar dataKey="rushing_attempts" fill="#8884d8" />
               <Bar dataKey="rushing_yards" fill="#82ca9d" />
+            </BarChart>
+          </Box>
+        )}
+        {(position === "WR" || position === "TE") && chartData.length > 0 && (
+          <Box sx={{ marginTop: 4 }}>
+            <Typography variant="h6">Player Receiving Stats</Typography>
+            <BarChart width={600} height={300} data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <Tooltip />
+              <Bar dataKey="receptions" fill="#8884d8" />
+              <Bar dataKey="receiving_yards" fill="#82ca9d" />
             </BarChart>
           </Box>
         )}
