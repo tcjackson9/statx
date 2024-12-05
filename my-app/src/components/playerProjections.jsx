@@ -350,83 +350,98 @@ const PlayerProjections = () => {
       >
         <Typography variant="h5">Player Projections</Typography>
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            fetchProjections();
-          }}
-          style={{
-            maxWidth: "400px",
-            margin: "0 auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
-          <Autocomplete
-            freeSolo
-            options={suggestions}
-            onInputChange={(event, value) => {
-              setPlayerName(value);
-              fetchSuggestions(value);
-            }}
-            renderInput={(params) => (
-              <TextField {...params} label="Search Player" fullWidth />
-            )}
-          />
-          <label htmlFor="defenseTeam">Select Defense Team</label>
-          <TextField
-            id="defenseTeam"
-            select
-            label="Defense Team"
-            value={defenseTeam}
-            onChange={(e) => setDefenseTeam(e.target.value)}
-            fullWidth
-          >
-            {[
-              { id: "ARI", name: "Cardinals" },
-              { id: "ATL", name: "Falcons" },
-              { id: "BAL", name: "Ravens" },
-              { id: "BUF", name: "Bills" },
-              { id: "CAR", name: "Panthers" },
-              { id: "CHI", name: "Bears" },
-              { id: "CIN", name: "Bengals" },
-              { id: "CLE", name: "Browns" },
-              { id: "DAL", name: "Cowboys" },
-              { id: "DEN", name: "Broncos" },
-              { id: "DET", name: "Lions" },
-              { id: "GB", name: "Packers" },
-              { id: "HOU", name: "Texans" },
-              { id: "IND", name: "Colts" },
-              { id: "JAC", name: "Jaguars" },
-              { id: "KC", name: "Chiefs" },
-              { id: "LV", name: "Raiders" },
-              { id: "LAC", name: "Chargers" },
-              { id: "LAR", name: "Rams" },
-              { id: "MIA", name: "Dolphins" },
-              { id: "MIN", name: "Vikings" },
-              { id: "NE", name: "Patriots" },
-              { id: "NO", name: "Saints" },
-              { id: "NYG", name: "Giants" },
-              { id: "NYJ", name: "Jets" },
-              { id: "PHI", name: "Eagles" },
-              { id: "PIT", name: "Steelers" },
-              { id: "SF", name: "49ers" },
-              { id: "SEA", name: "Seahawks" },
-              { id: "TB", name: "Buccaneers" },
-              { id: "TEN", name: "Titans" },
-              { id: "WAS", name: "Commanders" },
-            ]
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((team) => (
-                <MenuItem key={team.id} value={team.id}>
-                  {team.name}
-                </MenuItem>
-              ))}
-          </TextField>
-          <Button type="submit" variant="contained" fullWidth>
-            Generate Projections
-          </Button>
-        </form>
+  onSubmit={(e) => {
+    e.preventDefault();
+    fetchProjections();
+  }}
+  style={{
+    maxWidth: "800px",
+    margin: "0 auto",
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  }}
+>
+  <Box
+    sx={{
+      display: "flex",
+      gap: "20px",
+      justifyContent: "space-between",
+      alignItems: "center",
+    }}
+  >
+    {/* Search Player Field */}
+    <Autocomplete
+      freeSolo
+      options={suggestions}
+      onInputChange={(event, value) => {
+        setPlayerName(value);
+        fetchSuggestions(value);
+      }}
+      renderInput={(params) => (
+        <TextField {...params} label="Search Player" fullWidth />
+      )}
+      sx={{ flex: 1, width: '400px' }}
+    />
+
+    {/* Defense Team Dropdown */}
+    <TextField
+      id="defenseTeam"
+      select
+      label="Defense Team"
+      value={defenseTeam}
+      onChange={(e) => setDefenseTeam(e.target.value)}
+      fullWidth
+      sx={{ flex: 1 }}
+    >
+      {[ // Team list
+        { id: "ARI", name: "Cardinals" },
+        { id: "ATL", name: "Falcons" },
+        { id: "BAL", name: "Ravens" },
+        { id: "BUF", name: "Bills" },
+        { id: "CAR", name: "Panthers" },
+        { id: "CHI", name: "Bears" },
+        { id: "CIN", name: "Bengals" },
+        { id: "CLE", name: "Browns" },
+        { id: "DAL", name: "Cowboys" },
+        { id: "DEN", name: "Broncos" },
+        { id: "DET", name: "Lions" },
+        { id: "GB", name: "Packers" },
+        { id: "HOU", name: "Texans" },
+        { id: "IND", name: "Colts" },
+        { id: "JAC", name: "Jaguars" },
+        { id: "KC", name: "Chiefs" },
+        { id: "LV", name: "Raiders" },
+        { id: "LAC", name: "Chargers" },
+        { id: "LAR", name: "Rams" },
+        { id: "MIA", name: "Dolphins" },
+        { id: "MIN", name: "Vikings" },
+        { id: "NE", name: "Patriots" },
+        { id: "NO", name: "Saints" },
+        { id: "NYG", name: "Giants" },
+        { id: "NYJ", name: "Jets" },
+        { id: "PHI", name: "Eagles" },
+        { id: "PIT", name: "Steelers" },
+        { id: "SF", name: "49ers" },
+        { id: "SEA", name: "Seahawks" },
+        { id: "TB", name: "Buccaneers" },
+        { id: "TEN", name: "Titans" },
+        { id: "WAS", name: "Commanders" },
+      ]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((team) => (
+          <MenuItem key={team.id} value={team.id}>
+            {team.name}
+          </MenuItem>
+        ))}
+    </TextField>
+  </Box>
+
+  {/* Submit Button */}
+  <Button type="submit" variant="contained" fullWidth>
+    Generate Projections
+  </Button>
+</form>
       </Box>
 
       {position === "QB" && chartDataQBPrimary.length > 0 && chartDataQBSecondary.length > 0 ? (
