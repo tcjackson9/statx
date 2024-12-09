@@ -301,42 +301,56 @@ const PlayerStats = () => {
           </Box>
         )}
 
-        {stats.length > 0 && (
-          <TableContainer component={Paper} sx={{ marginTop: 4 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Week</TableCell>
-                  {getColumns().map((col) => (
-                    <TableCell key={col.key}>{col.label}</TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {stats.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{row.week}</TableCell>
-                    {getColumns().map((col) => (
-                      <TableCell key={col.key}>{row[col.key]}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell>Last 3 Averages</TableCell>
-                  {getColumns().map((col) => (
-                    <TableCell key={col.key}>{last3Averages[col.key]}</TableCell>
-                  ))}
-                </TableRow>
-                <TableRow>
-                  <TableCell>Averages</TableCell>
-                  {getColumns().map((col) => (
-                    <TableCell key={col.key}>{averages[col.key]}</TableCell>
-                  ))}
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+{stats.length > 0 && (
+  <TableContainer component={Paper} sx={{ marginTop: 4 }}>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>Week</TableCell>
+          {getColumns().map((col) => (
+            <TableCell key={col.key}>{col.label}</TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {stats.map((row, index) => (
+          <TableRow
+            key={index}
+            sx={{
+              backgroundColor: index % 2 === 0 ? "rgba(0, 0, 0, 0.04)" : "transparent", // Alternating row color
+            }}
+          >
+            <TableCell>{row.week}</TableCell>
+            {getColumns().map((col) => (
+              <TableCell key={col.key}>{row[col.key]}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+        <TableRow
+          sx={{
+            backgroundColor: stats.length % 2 === 0 ? "rgba(0, 0, 0, 0.04)" : "transparent", // Match the alternating pattern
+          }}
+        >
+          <TableCell>Last 3 Averages</TableCell>
+          {getColumns().map((col) => (
+            <TableCell key={col.key}>{last3Averages[col.key]}</TableCell>
+          ))}
+        </TableRow>
+        <TableRow
+          sx={{
+            backgroundColor: (stats.length + 1) % 2 === 0 ? "rgba(0, 0, 0, 0.04)" : "transparent", // Match the alternating pattern
+          }}
+        >
+          <TableCell>Averages</TableCell>
+          {getColumns().map((col) => (
+            <TableCell key={col.key}>{averages[col.key]}</TableCell>
+          ))}
+        </TableRow>
+      </TableBody>
+    </Table>
+  </TableContainer>
+)}
+
       </Box>
 
       <footer>

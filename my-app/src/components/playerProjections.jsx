@@ -520,40 +520,46 @@ const PlayerProjections = () => {
       )}
 
 {Object.keys(projections).length > 0 && (
-      <TableContainer component={Paper} sx={{ marginTop: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Stat</TableCell>
-              <TableCell>Projection</TableCell>
-              <TableCell>Player Line</TableCell>
+  <TableContainer component={Paper} sx={{ marginTop: 4 }}>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell>Stat</TableCell>
+          <TableCell>Projection</TableCell>
+          <TableCell>Player Line</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {getColumns().map((col, index) => {
+          const normalizedPlayerName = playerName.trim().toLowerCase();
+          let playerLine = playerLines[normalizedPlayerName]?.[col.market] || "N/A";
+
+          // Assign default value of 0.5 for TD rows if the playerLine is "N/A"
+          if (
+            (col.label === "Rushing TDs" || col.label === "Receiving TDs") &&
+            playerLine === "N/A"
+          ) {
+            playerLine = "0.5";
+          }
+
+          return (
+            <TableRow
+              key={col.key}
+              sx={{
+                backgroundColor: index % 2 === 0 ? "rgba(0, 0, 0, 0.04)" : "transparent", // Alternating row color
+              }}
+            >
+              <TableCell>{col.label}</TableCell>
+              <TableCell>{projections[col.key]?.toFixed(2) || "N/A"}</TableCell>
+              <TableCell>{playerLine}</TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {getColumns().map((col) => {
-              const normalizedPlayerName = playerName.trim().toLowerCase();
-              let playerLine = playerLines[normalizedPlayerName]?.[col.market] || "N/A";
+          );
+        })}
+      </TableBody>
+    </Table>
+  </TableContainer>
+)}
 
-              // Assign default value of 0.5 for TD rows if the playerLine is "N/A"
-              if (
-                (col.label === "Rushing TDs" || col.label === "Receiving TDs") &&
-                playerLine === "N/A"
-              ) {
-                playerLine = "0.5";
-              }
-
-              return (
-                <TableRow key={col.key}>
-                  <TableCell>{col.label}</TableCell>
-                  <TableCell>{projections[col.key]?.toFixed(2) || "N/A"}</TableCell>
-                  <TableCell>{playerLine}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )}
 
     {/* Footer */}
     <footer>
