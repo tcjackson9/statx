@@ -1,3 +1,5 @@
+[sportsx.online](https://www.statsx.online/)
+
 Sports Data Website - Player Stats and Projections
 
 Welcome to the Sports Data Website! This platform provides comprehensive player statistics, projections, and comparisons for various sports. We utilize a custom algorithm that factors in player performance and defensive metrics to generate accurate projections.
