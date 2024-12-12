@@ -316,135 +316,180 @@ const PlayerProjections = () => {
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        textAlign: "center",
-      }}
-    >
-      <header>
-        <Typography variant="h4">Stats X</Typography>
-        <nav>
-          <div className="nav-links">
-            <Link to="/">Home</Link>
-            <span>|</span>
-            <Link to="/defense">Defense v.s. Position</Link>
-            <span>|</span>
-            <Link to="/player-stats">Player Stats</Link>
-            <span>|</span>
-            <Link to="/player-projections">Player Projections</Link>
-          </div>
-        </nav>
-      </header>
-
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 2,
-        }}
-      >
-        <Typography variant="h5">Player Projections</Typography>
-        <form
-  onSubmit={(e) => {
-    e.preventDefault();
-    fetchProjections();
-  }}
-  style={{
-    maxWidth: "800px",
-    margin: "0 auto",
+  sx={{
     display: "flex",
     flexDirection: "column",
-    gap: "20px",
+    minHeight: "100vh",
+    textAlign: "center",
+    backgroundColor: "#1b2735", // Dark blue background
+    color: "#d1d1d1", // Light grey text
   }}
 >
+  <header>
+    <Typography variant="h4" sx={{ color: "#f1f1f1" }}>
+      Stats X
+    </Typography>
+    <nav>
+      <div className="nav-links">
+        <Link to="/" style={{ color: "#f1f1f1" }}>
+          Home
+        </Link>
+        <span style={{ color: "#d1d1d1" }}>|</span>
+        <Link to="/defense" style={{ color: "#f1f1f1" }}>
+          Defense v.s. Position
+        </Link>
+        <span style={{ color: "#d1d1d1" }}>|</span>
+        <Link to="/player-stats" style={{ color: "#f1f1f1" }}>
+          Player Stats
+        </Link>
+        <span style={{ color: "#d1d1d1" }}>|</span>
+        <Link to="/player-projections" style={{ color: "#f1f1f1" }}>
+          Player Projections
+        </Link>
+      </div>
+    </nav>
+  </header>
+
   <Box
     sx={{
+      flex: 1,
       display: "flex",
-      gap: "20px",
-      justifyContent: "space-between",
+      flexDirection: "column",
       alignItems: "center",
+      justifyContent: "center",
+      padding: 2,
     }}
   >
-    {/* Search Player Field */}
-    <Autocomplete
-      freeSolo
-      options={suggestions}
-      onInputChange={(event, value) => {
-        setPlayerName(value);
-        fetchSuggestions(value);
+    <Typography variant="h5" sx={{ color: "#f1f1f1" }}>
+      Player Projections
+    </Typography>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        fetchProjections();
       }}
-      renderInput={(params) => (
-        <TextField {...params} label="Search Player" fullWidth />
-      )}
-      sx={{ flex: 1, width: '400px' }}
-    />
-
-    {/* Defense Team Dropdown */}
-    <TextField
-      id="defenseTeam"
-      select
-      label="Defense Team"
-      value={defenseTeam}
-      onChange={(e) => setDefenseTeam(e.target.value)}
-      fullWidth
-      sx={{ flex: 1 }}
+      style={{
+        maxWidth: "800px",
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+      }}
     >
-      {[ // Team list
-        { id: "ARI", name: "Cardinals" },
-        { id: "ATL", name: "Falcons" },
-        { id: "BAL", name: "Ravens" },
-        { id: "BUF", name: "Bills" },
-        { id: "CAR", name: "Panthers" },
-        { id: "CHI", name: "Bears" },
-        { id: "CIN", name: "Bengals" },
-        { id: "CLE", name: "Browns" },
-        { id: "DAL", name: "Cowboys" },
-        { id: "DEN", name: "Broncos" },
-        { id: "DET", name: "Lions" },
-        { id: "GB", name: "Packers" },
-        { id: "HOU", name: "Texans" },
-        { id: "IND", name: "Colts" },
-        { id: "JAC", name: "Jaguars" },
-        { id: "KC", name: "Chiefs" },
-        { id: "LV", name: "Raiders" },
-        { id: "LAC", name: "Chargers" },
-        { id: "LAR", name: "Rams" },
-        { id: "MIA", name: "Dolphins" },
-        { id: "MIN", name: "Vikings" },
-        { id: "NE", name: "Patriots" },
-        { id: "NO", name: "Saints" },
-        { id: "NYG", name: "Giants" },
-        { id: "NYJ", name: "Jets" },
-        { id: "PHI", name: "Eagles" },
-        { id: "PIT", name: "Steelers" },
-        { id: "SF", name: "49ers" },
-        { id: "SEA", name: "Seahawks" },
-        { id: "TB", name: "Buccaneers" },
-        { id: "TEN", name: "Titans" },
-        { id: "WAS", name: "Commanders" },
-      ]
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((team) => (
-          <MenuItem key={team.id} value={team.id}>
-            {team.name}
-          </MenuItem>
-        ))}
-    </TextField>
-  </Box>
+      <Box
+        sx={{
+          display: "flex",
+          gap: "20px",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        {/* Search Player Field */}
+        <Autocomplete
+  freeSolo
+  options={suggestions}
+  onInputChange={(event, value) => {
+    setPlayerName(value);
+    fetchSuggestions(value);
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Search Player"
+      fullWidth
+      sx={{
+        backgroundColor: "#2a3f54", // Dark grey input field
+        borderRadius: "5px",
+        input: { color: "#f1f1f1" }, // White text inside input
+        label: { color: "#f1f1f1" }, // White label text
+      }}
+    />
+  )}
+  sx={{ flex: 1, width: "400px" }}
+/>
 
-  {/* Submit Button */}
-  <Button type="submit" variant="contained" fullWidth>
-    Generate Projections
-  </Button>
-</form>
+<TextField
+  id="defenseTeam"
+  select
+  label="Defense Team"
+  value={defenseTeam}
+  onChange={(e) => setDefenseTeam(e.target.value)}
+  fullWidth
+  sx={{
+    flex: 1,
+    backgroundColor: "#2a3f54", // Dark grey input field
+    borderRadius: "5px",
+    ".MuiInputBase-root": {
+      color: "#f1f1f1", // White text inside dropdown
+    },
+    label: { color: "#f1f1f1" }, // White label text
+  }}
+>
+  {[
+  { id: "SF", name: "49ers" },
+  { id: "CHI", name: "Bears" },
+  { id: "CIN", name: "Bengals" },
+  { id: "BUF", name: "Bills" },
+  { id: "DEN", name: "Broncos" },
+  { id: "CLE", name: "Browns" },
+  { id: "TB", name: "Buccaneers" },
+  { id: "ARI", name: "Cardinals" },
+  { id: "LAC", name: "Chargers" },
+  { id: "KC", name: "Chiefs" },
+  { id: "IND", name: "Colts" },
+  { id: "DAL", name: "Cowboys" },
+  { id: "MIA", name: "Dolphins" },
+  { id: "PHI", name: "Eagles" },
+  { id: "ATL", name: "Falcons" },
+  { id: "NYG", name: "Giants" },
+  { id: "JAC", name: "Jaguars" },
+  { id: "NYJ", name: "Jets" },
+  { id: "DET", name: "Lions" },
+  { id: "GB", name: "Packers" },
+  { id: "CAR", name: "Panthers" },
+  { id: "NE", name: "Patriots" },
+  { id: "LV", name: "Raiders" },
+  { id: "LAR", name: "Rams" },
+  { id: "BAL", name: "Ravens" },
+  { id: "WAS", name: "Commanders" },
+  { id: "NO", name: "Saints" },
+  { id: "SEA", name: "Seahawks" },
+  { id: "PIT", name: "Steelers" },
+  { id: "HOU", name: "Texans" },
+  { id: "TEN", name: "Titans" },
+  { id: "MIN", name: "Vikings" }
+]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((team) => (
+      <MenuItem key={team.id} value={team.id} sx={{ color: "#000" }}>
+        {team.name}
+      </MenuItem>
+    ))}
+</TextField>
+
       </Box>
 
-      {position === "QB" && chartDataQBPrimary.length > 0 && chartDataQBSecondary.length > 0 ? (
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        sx={{
+          backgroundColor: "#3e4e6a", // Dark blue button
+          color: "#fff",
+          "&:hover": {
+            backgroundColor: "#2c3d57", // Darker blue on hover
+          },
+          borderRadius: "5px",
+          padding: "10px",
+        }}
+      >
+        Generate Projections
+      </Button>
+    </form>
+  </Box>
+
+  {position === "QB" && chartDataQBPrimary.length > 0 && chartDataQBSecondary.length > 0 ? (
         <Box
           sx={{
             display: "flex",
@@ -519,57 +564,176 @@ const PlayerProjections = () => {
         )
       )}
 
-{Object.keys(projections).length > 0 && (
-      <TableContainer component={Paper} sx={{ marginTop: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Stat</TableCell>
-              <TableCell>Projection</TableCell>
-              <TableCell>Player Line</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {getColumns().map((col) => {
-              const normalizedPlayerName = playerName.trim().toLowerCase();
-              let playerLine = playerLines[normalizedPlayerName]?.[col.market] || "N/A";
+  {Object.keys(projections).length > 0 && (
+  <TableContainer
+    component={Paper}
+    sx={{
+      marginTop: 4,
+      backgroundColor: "#1b2735", // Match the dark blue theme
+      color: "#f1f1f1", // Light text for table
+    }}
+  >
+    <Table>
+      <TableHead>
+        <TableRow sx={{ backgroundColor: "#2a3f54" }}>
+          <TableCell sx={{ color: "#f1f1f1", fontWeight: "bold" }}>Stat</TableCell>
+          <TableCell sx={{ color: "#f1f1f1", fontWeight: "bold" }}>Projection</TableCell>
+          <TableCell sx={{ color: "#f1f1f1", fontWeight: "bold" }}>Player Line</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+  {getColumns().map((col) => {
+    const normalizedPlayerName = playerName.trim().toLowerCase();
+    let playerLine = playerLines[normalizedPlayerName]?.[col.market] || "N/A";
 
-              // Assign default value of 0.5 for TD rows if the playerLine is "N/A"
-              if (
-                (col.label === "Rushing TDs" || col.label === "Receiving TDs") &&
-                playerLine === "N/A"
-              ) {
-                playerLine = "0.5";
-              }
+    // Assign default value of 0.5 for TD rows if the playerLine is "N/A"
+    if (
+      (col.label === "Rushing TDs" || col.label === "Receiving TDs") &&
+      playerLine === "N/A"
+    ) {
+      playerLine = "0.5";
+    }
 
-              return (
-                <TableRow key={col.key}>
-                  <TableCell>{col.label}</TableCell>
-                  <TableCell>{projections[col.key]?.toFixed(2) || "N/A"}</TableCell>
-                  <TableCell>{playerLine}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    )}
+    const projectedValue = projections[col.key]?.toFixed(2);
+    let projectionColor = "#f1f1f1"; // Default white color
 
-    {/* Footer */}
-    <footer>
-      <Box
+    if (playerLine !== "N/A" && projectedValue !== undefined) {
+      const playerLineValue = parseFloat(playerLine);
+      const projected = parseFloat(projectedValue);
+
+      if (Math.abs(projected - playerLineValue) <= 1.5) {
+        projectionColor = "#ffea00"; // Yellow
+      } else if (projected > playerLineValue + 1.5) {
+        projectionColor = "#00c853"; // Green
+      } else if (projected < playerLineValue - 1.5) {
+        projectionColor = "#d32f2f"; // Red
+      }
+    }
+
+    return (
+      <TableRow key={col.key}>
+        <TableCell sx={{ color: "#f1f1f1" }}>{col.label}</TableCell>
+        <TableCell sx={{ color: projectionColor }}>{projectedValue || "N/A"}</TableCell>
+        <TableCell
+          sx={{
+            color: playerLine === "N/A" ? "#f1f1f1" : "#ff4c4c", // White for N/A, Red for others
+            fontWeight: playerLine === "N/A" ? "normal" : "bold", // Optional: Bold for non-N/A values
+          }}
+        >
+          {playerLine}
+        </TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
+
+
+
+    </Table>
+  </TableContainer>
+)}
+
+<Box
+  sx={{
+    marginTop: 4,
+    padding: 2,
+    backgroundColor: "#2a3f54", // Dark grey background for the legend
+    color: "#f1f1f1", // Light text
+    borderRadius: "5px",
+    textAlign: "center",
+    width: "100%", // Take full width
+    display: "flex",
+    justifyContent: "center", // Center the legend content
+  }}
+>
+  <Box
+    sx={{
+      maxWidth: "1200px", // Match table's max width
+      width: "100%",
+      display: "flex", // Create flex container
+      justifyContent: "space-between", // Distribute columns evenly
+      gap: 4,
+    }}
+  >
+    {/* Column for Projection Key */}
+    <Box sx={{ flex: 1, textAlign: "left" }}>
+      {/* Title */}
+      <Typography
+        variant="h5"
         sx={{
-          backgroundColor: "#2a3f54",
-          color: "#fff",
+          marginBottom: 3,
+          fontWeight: "bold",
           textAlign: "center",
-          padding: 2,
-          marginTop: "auto",
         }}
       >
-        <Typography variant="body2">&copy; 2024 Stats X. All rights reserved.</Typography>
+        Stats Key
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row", // Row direction to align items horizontally
+          justifyContent: "space-around",
+          alignItems: "center",
+          gap: 4,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              width: 16,
+              height: 16,
+              backgroundColor: "#00c853", // Green
+              borderRadius: "50%",
+              marginRight: 1,
+            }}
+          />
+          <Typography>More than 1.5 over the line</Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              width: 16,
+              height: 16,
+              backgroundColor: "#ffea00", // Yellow
+              borderRadius: "50%",
+              marginRight: 1,
+            }}
+          />
+          <Typography>Within 1.5 of the line</Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              width: 16,
+              height: 16,
+              backgroundColor: "#d32f2f", // Red
+              borderRadius: "50%",
+              marginRight: 1,
+            }}
+          />
+          <Typography>Less than 1.5 below the line</Typography>
+        </Box>
       </Box>
-    </footer>
+    </Box>
   </Box>
+</Box>
+
+  {/* Footer */}
+  <footer>
+    <Box
+      sx={{
+        backgroundColor: "#2a3f54", // Dark grey footer
+        color: "#d1d1d1",
+        textAlign: "center",
+        padding: 2,
+        marginTop: "auto",
+      }}
+    >
+      <Typography variant="body2">&copy; 2024 Stats X. All rights reserved.</Typography>
+    </Box>
+  </footer>
+</Box>
+
   );
 };
 
