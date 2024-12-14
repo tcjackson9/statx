@@ -32,7 +32,11 @@ const PlayerStats = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const normalizeString = (str) => str.toLowerCase().replace(/[-.`']/g, "").trim();
+  const normalizeString = (str) =>
+    str
+      .toLowerCase()
+      .replace(/[-.`']/g, "")
+      .trim();
 
   const fetchSuggestions = async (query) => {
     if (!query) {
@@ -41,7 +45,9 @@ const PlayerStats = () => {
     }
 
     try {
-      const { data: players } = await supabase.from("player_list").select("player_name");
+      const { data: players } = await supabase
+        .from("player_list")
+        .select("player_name");
 
       const normalizedQuery = normalizeString(query);
       const matchingPlayers = players.filter((player) =>
@@ -60,11 +66,11 @@ const PlayerStats = () => {
         .from("player_averages")
         .select("*")
         .ilike("player_name", `%${normalizedPlayerName}%`);
-  
+
       if (!playerAverages || playerAverages.length === 0) {
         throw new Error("No average data available for the selected player.");
       }
-  
+
       const averages = {};
       playerAverages.forEach((stat) => {
         Object.keys(stat).forEach((key) => {
@@ -73,13 +79,13 @@ const PlayerStats = () => {
           }
         });
       });
-  
+
       setAverages(averages); // Update the state with the fetched averages
     } catch (err) {
       console.error("Error fetching player averages:", err.message);
       setError("Unable to fetch player averages.");
     }
-  };  
+  };
 
   const fetchPlayerStats = async () => {
     setLoading(true);
@@ -87,21 +93,21 @@ const PlayerStats = () => {
 
     try {
       const normalizedPlayerName = normalizeString(playerName);
-  
+
       await fetchPlayerAverages(normalizedPlayerName); // Fetch player averages
-  
+
       const { data: weeklyStats } = await supabase
         .from("player_stats")
         .select("*")
         .ilike("player_name", `%${normalizedPlayerName}%`);
-  
+
       if (!weeklyStats || weeklyStats.length === 0) {
         throw new Error("No data available for the selected player.");
       }
-  
+
       const sortedStats = weeklyStats.sort((a, b) => a.week - b.week);
       setStats(sortedStats);
-      setPosition(sortedStats[0]?.position_id || "");  
+      setPosition(sortedStats[0]?.position_id || "");
 
       const totalStats = sortedStats.reduce((totals, stat) => {
         Object.keys(stat).forEach((key) => {
@@ -144,22 +150,25 @@ const PlayerStats = () => {
       }
 
       if (sortedStats[0].position_id === "RB") {
-      const rbChartData = sortedStats.map((stat) => ({
-        week: `Week ${stat.week}`,
-        rushing_attempts: stat.rushing_attempts || 0,
-        rushing_yards: stat.rushing_yards || 0,
-      }));
-      setChartData(rbChartData);
-    }
+        const rbChartData = sortedStats.map((stat) => ({
+          week: `Week ${stat.week}`,
+          rushing_attempts: stat.rushing_attempts || 0,
+          rushing_yards: stat.rushing_yards || 0,
+        }));
+        setChartData(rbChartData);
+      }
 
-      if (sortedStats[0].position_id === "WR" || sortedStats[0].position_id === "TE") {
-      const wrChartData = sortedStats.map((stat) => ({
-        week: `Week ${stat.week}`,
-        receptions: stat.receptions || 0,
-        receiving_yards: stat.receiving_yards || 0,
-      }));
-      setChartData(wrChartData);
-    }
+      if (
+        sortedStats[0].position_id === "WR" ||
+        sortedStats[0].position_id === "TE"
+      ) {
+        const wrChartData = sortedStats.map((stat) => ({
+          week: `Week ${stat.week}`,
+          receptions: stat.receptions || 0,
+          receiving_yards: stat.receiving_yards || 0,
+        }));
+        setChartData(wrChartData);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -307,7 +316,9 @@ const PlayerStats = () => {
           </Button>
         </Box>
 
-        {loading && <Typography sx={{ color: "#d1d1d1" }}>Loading stats...</Typography>}
+        {loading && (
+          <Typography sx={{ color: "#d1d1d1" }}>Loading stats...</Typography>
+        )}
         {error && <Typography sx={{ color: "#ff4c4c" }}>{error}</Typography>}
 
         {position === "QB" && chartData.length > 0 && (
@@ -349,7 +360,10 @@ const PlayerStats = () => {
           </Box>
         )}
         {stats.length > 0 && (
-          <TableContainer component={Paper} sx={{ marginTop: 4, backgroundColor: "#1b2735" }}>
+          <TableContainer
+            component={Paper}
+            sx={{ marginTop: 4, backgroundColor: "#1b2735" }}
+          >
             <Table>
               <TableHead>
                 <TableRow>
@@ -362,262 +376,282 @@ const PlayerStats = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-  {stats.map((row, index) => (
-    <TableRow key={index} sx={{ backgroundColor: index % 2 === 0 ? "#2a3f54" : "transparent" }}>
-      <TableCell sx={{ color: "#f1f1f1" }}>{row.week}</TableCell>
-      {getColumns().map((col) => {
-        const value = parseFloat(row[col.key]);
-        const average = parseFloat(averages[col.key]);
-        let color = "#f1f1f1"; // Default white
+                {stats.map((row, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{
+                      backgroundColor:
+                        index % 2 === 0 ? "#2a3f54" : "transparent",
+                    }}
+                  >
+                    <TableCell sx={{ color: "#f1f1f1" }}>{row.week}</TableCell>
+                    {getColumns().map((col) => {
+                      const value = parseFloat(row[col.key]);
+                      const average = parseFloat(averages[col.key]);
+                      let color = "#f1f1f1"; // Default white
 
-        if (!isNaN(value)) {
-          // Specific conditions for certain stats
-          if (col.key === "rushing_tds" || col.key === "receiving_tds") {
-            color = value > 0 ? "#00c853" : "#d32f2f"; // Green if > 0, Red otherwise
-          } else if (col.key === "interceptions") {
-            if (value === 0) color = "#00c853"; // Green
-            else if (value === 1) color = "#ffea00"; // Yellow
-            else if (value > 1) color = "#d32f2f"; // Red
-          } else if (col.key === "passing_tds") {
-            if (value === 0) color = "#d32f2f"; // Red
-            else if (value === 1) color = "#ffea00"; // Yellow
-            else if (value > 1) color = "#00c853"; // Green
-          }
-          // Fallback to average-based comparison for other stats
-          else if (!isNaN(average)) {
-            if (value > average + 1.5) {
-              color = "#00c853"; // Green
-            } else if (value >= average - 1.5 && value <= average + 1.5) {
-              color = "#ffea00"; // Yellow
-            } else if (value < average - 1.5) {
-              color = "#d32f2f"; // Red
-            }
-          }
-        }
+                      if (!isNaN(value)) {
+                        // Specific conditions for certain stats
+                        if (
+                          col.key === "rushing_tds" ||
+                          col.key === "receiving_tds"
+                        ) {
+                          color = value > 0 ? "#00c853" : "#d32f2f"; // Green if > 0, Red otherwise
+                        } else if (col.key === "interceptions") {
+                          if (value === 0) color = "#00c853"; // Green
+                          else if (value === 1) color = "#ffea00"; // Yellow
+                          else if (value > 1) color = "#d32f2f"; // Red
+                        } else if (col.key === "passing_tds") {
+                          if (value === 0) color = "#d32f2f"; // Red
+                          else if (value === 1) color = "#ffea00"; // Yellow
+                          else if (value > 1) color = "#00c853"; // Green
+                        }
+                        // Fallback to average-based comparison for other stats
+                        else if (!isNaN(average)) {
+                          if (value > average + 1.5) {
+                            color = "#00c853"; // Green
+                          } else if (
+                            value >= average - 1.5 &&
+                            value <= average + 1.5
+                          ) {
+                            color = "#ffea00"; // Yellow
+                          } else if (value < average - 1.5) {
+                            color = "#d32f2f"; // Red
+                          }
+                        }
+                      }
 
-        return (
-          <TableCell key={col.key} sx={{ color }}>
-            {isNaN(value) ? "N/A" : value}
-          </TableCell>
-        );
-      })}
-    </TableRow>
-  ))}
-</TableBody>
-
-
+                      return (
+                        <TableCell key={col.key} sx={{ color }}>
+                          {isNaN(value) ? "N/A" : value}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
           </TableContainer>
         )}
       </Box>
       <Box
-  sx={{
-    marginTop: 4,
-    padding: 2,
-    backgroundColor: "#2a3f54",
-    color: "#f1f1f1",
-    borderRadius: "5px",
-    textAlign: "center",
-    width: "100%", // Take full width
-    display: "flex",
-    flexDirection: "column", // Stack the title and content vertically
-    alignItems: "center", // Center all content
-  }}
->
-  {/* Title */}
-  <Typography
-    variant="h5"
-    sx={{
-      marginBottom: 3,
-      fontWeight: "bold",
-      textAlign: "center",
-    }}
-  >
-    Stats Key
-  </Typography>
-
-  <Box
-    sx={{
-      maxWidth: "1200px", // Match table's max width
-      width: "100%",
-      display: "flex", // Create flex container
-      justifyContent: "space-between", // Distribute columns evenly
-      gap: 4,
-    }}
-  >
-    {/* Column 1: Averages */}
-    <Box sx={{ flex: 1, textAlign: "center" }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Averages
-      </Typography>
-      <Box
         sx={{
+          marginTop: 4,
+          padding: 2,
+          backgroundColor: "#2a3f54",
+          color: "#f1f1f1",
+          borderRadius: "5px",
+          textAlign: "center",
+          width: "100%", // Take full width
           display: "flex",
-          flexDirection: "column", // Stack vertically
-          gap: 1,
-          alignItems: "center", // Center align items
+          flexDirection: "column", // Stack the title and content vertically
+          alignItems: "center", // Center all content
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#ffea00",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>Within 1.5 of the player's average</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#00c853",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>At least 1.5 more than the player's average</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#d32f2f",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>At least 1.5 less than the player's average</Typography>
+        {/* Title */}
+        <Typography
+          variant="h5"
+          sx={{
+            marginBottom: 3,
+            fontWeight: "bold",
+            textAlign: "center",
+          }}
+        >
+          Stats Key
+        </Typography>
+
+        <Box
+          sx={{
+            maxWidth: "1200px", // Match table's max width
+            width: "100%",
+            display: "flex", // Create flex container
+            justifyContent: "space-between", // Distribute columns evenly
+            gap: 4,
+          }}
+        >
+          {/* Column 1: Averages */}
+          <Box sx={{ flex: 1, textAlign: "center" }}>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Averages
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column", // Stack vertically
+                gap: 1,
+                alignItems: "center", // Center align items
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#ffea00",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>Within 1.5 of the player's average</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#00c853",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>
+                  At least 1.5 more than the player's average
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#d32f2f",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>
+                  At least 1.5 less than the player's average
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Column 2: Touchdowns */}
+          <Box sx={{ flex: 1, textAlign: "center" }}>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Touchdowns
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column", // Stack vertically
+                gap: 1,
+                alignItems: "center", // Center align items
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#00c853",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>Rushing/Receiving TDs > 0</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#d32f2f",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>Passing TDs = 0</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#ffea00",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>Passing TDs = 1</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#00c853",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>Passing TDs > 1</Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Column 3: Interceptions */}
+          <Box sx={{ flex: 1, textAlign: "center" }}>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Interceptions
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column", // Stack vertically
+                gap: 1,
+                alignItems: "center", // Center align items
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#00c853",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>0 Interceptions</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#ffea00",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>1 Interception</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 16,
+                    height: 16,
+                    backgroundColor: "#d32f2f",
+                    borderRadius: "50%",
+                    marginRight: 1,
+                  }}
+                />
+                <Typography>More than 1 Interception</Typography>
+              </Box>
+            </Box>
+          </Box>
         </Box>
       </Box>
-    </Box>
-
-    {/* Column 2: Touchdowns */}
-    <Box sx={{ flex: 1, textAlign: "center" }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Touchdowns
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column", // Stack vertically
-          gap: 1,
-          alignItems: "center", // Center align items
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#00c853",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>Rushing/Receiving TDs > 0</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#d32f2f",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>Passing TDs = 0</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#ffea00",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>Passing TDs = 1</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#00c853",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>Passing TDs > 1</Typography>
-        </Box>
-      </Box>
-    </Box>
-
-    {/* Column 3: Interceptions */}
-    <Box sx={{ flex: 1, textAlign: "center" }}>
-      <Typography variant="h6" sx={{ marginBottom: 2 }}>
-        Interceptions
-      </Typography>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column", // Stack vertically
-          gap: 1,
-          alignItems: "center", // Center align items
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#00c853",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>0 Interceptions</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#ffea00",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>1 Interception</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box
-            sx={{
-              width: 16,
-              height: 16,
-              backgroundColor: "#d32f2f",
-              borderRadius: "50%",
-              marginRight: 1,
-            }}
-          />
-          <Typography>More than 1 Interception</Typography>
-        </Box>
-      </Box>
-    </Box>
-  </Box>
-</Box>
-
 
       <footer>
-        <Box sx={{ backgroundColor: "#2a3f54", color: "#f1f1f1", textAlign: "center", padding: 2 }}>
+        <Box
+          sx={{
+            backgroundColor: "#2a3f54",
+            color: "#f1f1f1",
+            textAlign: "center",
+            padding: 2,
+          }}
+        >
           <Typography>&copy; 2024 Stats X. All rights reserved.</Typography>
         </Box>
       </footer>
