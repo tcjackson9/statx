@@ -86,20 +86,32 @@ const Home = () => {
         flexDirection: "column",
         minHeight: "100vh",
         textAlign: "center",
+        backgroundColor: "#1b2735", // Dark blue background
+        color: "#d1d1d1", // Light grey text
       }}
     >
       {/* Header */}
       <header>
-        <Typography variant="h4">Stats X</Typography>
+        <Typography variant="h4" sx={{ color: "#f1f1f1" }}>
+          Stats X
+        </Typography>
         <nav>
           <div className="nav-links">
-            <Link to="/">Home</Link>
-            <span>|</span>
-            <Link to="/defense">Defense v.s. Position</Link>
-            <span>|</span>
-            <Link to="/player-stats">Player Stats</Link>
-            <span>|</span>
-            <Link to="/player-projections">Player Projections</Link>
+            <Link to="/" style={{ color: "#f1f1f1" }}>
+              Home
+            </Link>
+            <span style={{ color: "#d1d1d1" }}>|</span>
+            <Link to="/defense" style={{ color: "#f1f1f1" }}>
+              Defense v.s. Position
+            </Link>
+            <span style={{ color: "#d1d1d1" }}>|</span>
+            <Link to="/player-stats" style={{ color: "#f1f1f1" }}>
+              Player Stats
+            </Link>
+            <span style={{ color: "#d1d1d1" }}>|</span>
+            <Link to="/player-projections" style={{ color: "#f1f1f1" }}>
+              Player Projections
+            </Link>
           </div>
         </nav>
       </header>
@@ -116,28 +128,49 @@ const Home = () => {
           padding: 2,
         }}
       >
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom sx={{ color: "#f1f1f1" }}>
           Welcome to StatsX!
         </Typography>
-        <Typography variant="body1" gutterBottom>
+        <Typography variant="body1" gutterBottom sx={{ color: "#d1d1d1" }}>
           Your go-to destination for NFL statistical analysis.
         </Typography>
 
         <Box sx={{ marginTop: 4 }}>
-          <Typography variant="h6">Best Matchups This Week</Typography>
+          <Typography variant="h6" sx={{ color: "#f1f1f1" }}>
+            Best Matchups This Week
+          </Typography>
           <Button
             onClick={fetchMatchups}
             variant="contained"
-            color="primary"
-            sx={{ marginTop: 2 }}
+            sx={{
+              marginTop: 2,
+              backgroundColor: "#3e4e6a", // Dark blue button
+              color: "#fff",
+              "&:hover": {
+                backgroundColor: "#2c3d57", // Darker blue on hover
+              },
+            }}
           >
             Show Best Matchups
           </Button>
 
-          {loading && <Typography sx={{ marginTop: 2 }}>Loading matchups...</Typography>}
-          {error && <Typography sx={{ color: "red", marginTop: 2 }}>{error}</Typography>}
+          {loading && (
+            <Typography sx={{ marginTop: 2, color: "#d1d1d1" }}>
+              Loading matchups...
+            </Typography>
+          )}
+          {error && (
+            <Typography sx={{ color: "red", marginTop: 2 }}>{error}</Typography>
+          )}
 
-          <Box sx={{ marginTop: 4, display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+          <Box
+            sx={{
+              marginTop: 4,
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
             {matchupResults.map((matchup, index) => (
               <Card
                 key={index}
@@ -147,12 +180,17 @@ const Home = () => {
                   padding: 2,
                   boxShadow: 3,
                   textAlign: "center",
+                  backgroundColor: "#2a3f54", // Dark grey card background
+                  color: "#fff",
                 }}
               >
                 <CardContent>
                   <Typography variant="h6">{matchup.position}</Typography>
                   {matchup.results.map((result, idx) => (
-                    <Typography key={idx} sx={{ marginTop: 1 }}>
+                    <Typography
+                      key={idx}
+                      sx={{ marginTop: 1, color: "#f1f1f1" }}
+                    >
                       {result.label}:{" "}
                       {result.error ? (
                         <span style={{ color: "red" }}>{result.error}</span>
@@ -178,14 +216,16 @@ const Home = () => {
       <footer>
         <Box
           sx={{
-            backgroundColor: "#2a3f54",
-            color: "#fff",
+            backgroundColor: "#1e2e40", // Darker blue footer
+            color: "#d1d1d1",
             textAlign: "center",
             padding: 2,
             marginTop: "auto",
           }}
         >
-          <Typography variant="body2">&copy; 2024 Stats X. All rights reserved.</Typography>
+          <Typography variant="body2">
+            &copy; 2024 Stats X. All rights reserved.
+          </Typography>
         </Box>
       </footer>
     </Box>
